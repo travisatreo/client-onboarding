@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Travis Atreo Productions — Let's Get Started</title>
+    <title>Travis Atreo Productions — Client Onboarding</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Caveat:wght@500;600&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: #0a0a1a;
+            background: #06060f;
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(108, 92, 231, 0.08) 0%, transparent 60%);
             color: #f5f5f5;
             min-height: 100vh;
             display: flex;
@@ -21,33 +22,38 @@
             padding: 20px 16px 40px;
         }
 
-        .container { max-width: 520px; width: 100%; }
+        .container { max-width: 540px; width: 100%; }
 
         /* Header */
-        .header { text-align: center; margin-bottom: 24px; }
+        .header { text-align: center; margin-bottom: 28px; }
         .header .logo {
-            font-size: 12px; letter-spacing: 3px; color: #a29bfe;
-            text-transform: uppercase; margin-bottom: 6px;
+            font-size: 11px; letter-spacing: 4px; color: #c8a851;
+            text-transform: uppercase; margin-bottom: 10px; font-weight: 600;
         }
         .header h1 {
-            font-size: 26px; font-weight: 700;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            font-family: 'Playfair Display', serif;
+            font-size: 30px; font-weight: 700;
+            background: linear-gradient(135deg, #e8d5a3, #c8a851);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 4px;
+            margin-bottom: 6px; letter-spacing: 0.5px;
         }
-        .header p { color: #888; font-size: 13px; }
+        .header p { color: #666; font-size: 12px; letter-spacing: 0.5px; }
+        .header .tagline {
+            color: #555; font-size: 11px; margin-top: 4px;
+            letter-spacing: 1.5px; text-transform: uppercase;
+        }
 
         /* Chat area */
         .chat-area {
-            background: #12122a; border-radius: 16px;
-            border: 1px solid #2d2d4a; overflow: hidden;
-            display: flex; flex-direction: column;
+            background: #0c0c1e; border-radius: 16px;
+            border: 1px solid rgba(200, 168, 81, 0.15); overflow: hidden;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.4), 0 0 80px rgba(108, 92, 231, 0.04);
         }
 
         .messages {
             flex: 1; padding: 20px; overflow-y: auto;
-            max-height: calc(100vh - 240px);
+            max-height: calc(100vh - 260px);
             scroll-behavior: smooth;
         }
 
@@ -62,7 +68,7 @@
 
         .message.bot .avatar {
             width: 30px; height: 30px; border-radius: 50%;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            background: linear-gradient(135deg, #c8a851, #e8d5a3);
             display: flex; align-items: center; justify-content: center;
             font-size: 13px; flex-shrink: 0; margin-top: 4px;
         }
@@ -73,31 +79,32 @@
             max-width: 82%; font-size: 14px; line-height: 1.5;
         }
         .message.bot .bubble {
-            background: #1e1e3a; border: 1px solid #2d2d4a;
+            background: #111128; border: 1px solid #1e1e3a;
             border-bottom-left-radius: 4px;
         }
         .message.user .bubble {
-            background: #6c5ce7; border-bottom-right-radius: 4px;
+            background: linear-gradient(135deg, #6c5ce7, #8b7cf0);
+            border-bottom-right-radius: 4px;
         }
 
         /* Input */
         .input-area {
-            padding: 14px 20px; border-top: 1px solid #2d2d4a;
+            padding: 14px 20px; border-top: 1px solid rgba(200, 168, 81, 0.1);
             display: flex; gap: 10px;
         }
         .input-area.hidden { display: none; }
         .input-area input {
-            flex: 1; background: #1a1a3a; border: 1px solid #3d3d5c;
+            flex: 1; background: #0f0f24; border: 1px solid #2a2a48;
             border-radius: 10px; padding: 12px 14px; color: #f5f5f5;
             font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
             transition: border-color 0.2s;
         }
-        .input-area input:focus { border-color: #6c5ce7; }
-        .input-area input::placeholder { color: #555; }
+        .input-area input:focus { border-color: #c8a851; }
+        .input-area input::placeholder { color: #444; }
         .input-area button {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            background: linear-gradient(135deg, #c8a851, #e8d5a3);
             border: none; border-radius: 10px; padding: 12px 18px;
-            color: white; font-weight: 600; font-size: 14px;
+            color: #0a0a14; font-weight: 700; font-size: 14px;
             cursor: pointer; transition: transform 0.1s, opacity 0.2s;
             white-space: nowrap;
         }
@@ -107,15 +114,15 @@
         /* Quick replies */
         .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .quick-reply {
-            background: transparent; border: 1px solid #6c5ce7;
-            color: #a29bfe; border-radius: 20px; padding: 7px 14px;
+            background: transparent; border: 1px solid rgba(200, 168, 81, 0.4);
+            color: #c8a851; border-radius: 20px; padding: 7px 14px;
             font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
             transition: all 0.2s;
         }
-        .quick-reply:hover { background: #6c5ce7; color: white; }
+        .quick-reply:hover { background: rgba(200, 168, 81, 0.15); color: #e8d5a3; }
         .quick-reply:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
 
-        /* Action buttons (confirm, sign, etc.) */
+        /* Action buttons */
         .action-btn {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 11px 22px; border-radius: 10px; border: none;
@@ -124,30 +131,30 @@
             margin: 4px;
         }
         .action-btn.primary {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            background: linear-gradient(135deg, #6c5ce7, #8b7cf0);
             color: white;
         }
         .action-btn.primary:hover { opacity: 0.9; transform: scale(1.01); }
         .action-btn.secondary {
-            background: #2d2d4a; color: #a29bfe;
+            background: #1a1a35; color: #888; border: 1px solid #2a2a48;
         }
-        .action-btn.secondary:hover { background: #3d3d5c; }
+        .action-btn.secondary:hover { background: #222245; color: #aaa; }
         .action-btn.gold {
-            background: linear-gradient(135deg, #f6c90e, #f0a500);
-            color: #1a1a2e;
+            background: linear-gradient(135deg, #c8a851, #e8d5a3);
+            color: #0a0a14; font-weight: 700;
         }
         .action-btn.gold:hover { opacity: 0.9; }
         .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
         /* Contract review card */
         .contract-card {
-            background: #1a1a35; border: 1px solid #3d3d5c;
+            background: #0f0f24; border: 1px solid #2a2a48;
             border-radius: 12px; margin-top: 12px; overflow: hidden;
         }
         .contract-card .cc-header {
-            padding: 12px 16px; background: #2d2d4a;
+            padding: 12px 16px; background: #161635;
             font-size: 12px; font-weight: 600; letter-spacing: 1px;
-            color: #a29bfe; text-transform: uppercase;
+            color: #c8a851; text-transform: uppercase;
             cursor: pointer; display: flex; justify-content: space-between; align-items: center;
         }
         .contract-card .cc-header .arrow { transition: transform 0.2s; }
@@ -157,10 +164,10 @@
         }
         .contract-card .cc-body.open { max-height: 1200px; }
         .contract-card .cc-body-inner {
-            padding: 16px; font-size: 12px; line-height: 1.7; color: #ccc;
+            padding: 16px; font-size: 12px; line-height: 1.7; color: #bbb;
         }
         .contract-card .cc-body-inner .section-title {
-            color: #f6c90e; font-weight: 600; font-size: 12px;
+            color: #c8a851; font-weight: 600; font-size: 12px;
             margin-top: 12px; margin-bottom: 4px; text-transform: uppercase;
         }
         .contract-card .cc-body-inner .section-title:first-child { margin-top: 0; }
@@ -172,8 +179,8 @@
         }
         .sig-tab {
             flex: 1; padding: 8px; text-align: center; font-size: 12px;
-            font-weight: 600; cursor: pointer; border: 1px solid #3d3d5c;
-            color: #888; background: #1a1a3a; font-family: 'Inter', sans-serif;
+            font-weight: 600; cursor: pointer; border: 1px solid #2a2a48;
+            color: #666; background: #0f0f24; font-family: 'Inter', sans-serif;
             transition: all 0.2s;
         }
         .sig-tab:first-child { border-radius: 8px 0 0 8px; }
@@ -197,58 +204,68 @@
             color: #1a1a2e; outline: none; text-align: center;
         }
         .sig-clear {
-            background: none; border: none; color: #a29bfe; font-size: 11px;
+            background: none; border: none; color: #c8a851; font-size: 11px;
             cursor: pointer; margin-top: 6px; font-family: 'Inter', sans-serif;
             text-decoration: underline;
         }
 
         /* Summary card */
         .summary-card {
-            background: #1a1a35; border: 1px solid #3d3d5c;
+            background: #0f0f24; border: 1px solid #2a2a48;
             border-radius: 12px; margin-top: 12px; padding: 16px; text-align: left;
         }
         .summary-card .row {
-            display: flex; justify-content: space-between; padding: 6px 0;
-            font-size: 13px; border-bottom: 1px solid #2d2d4a;
+            display: flex; justify-content: space-between; padding: 8px 0;
+            font-size: 13px; border-bottom: 1px solid #1a1a35;
         }
         .summary-card .row:last-child { border-bottom: none; }
-        .summary-card .row .label { color: #888; }
-        .summary-card .row .value { color: #f5f5f5; font-weight: 500; text-align: right; }
-        .summary-card .row.total .value { color: #f6c90e; font-size: 16px; font-weight: 700; }
+        .summary-card .row .label { color: #666; }
+        .summary-card .row .value { color: #e8e8e8; font-weight: 500; text-align: right; }
+        .summary-card .row.highlight .label { color: #c8a851; font-weight: 600; }
+        .summary-card .row.highlight .value { color: #c8a851; font-weight: 700; }
+        .summary-card .row.total .value { color: #c8a851; font-size: 16px; font-weight: 700; }
+        .summary-card .deposit-note {
+            margin-top: 10px; padding: 10px 12px; background: rgba(200, 168, 81, 0.08);
+            border: 1px solid rgba(200, 168, 81, 0.2); border-radius: 8px;
+            font-size: 11px; color: #c8a851; line-height: 1.5;
+        }
 
         /* Results */
         .results { display: none; padding: 20px; text-align: center; }
         .results.active { display: block; }
-        .results h2 { font-size: 20px; color: #f6c90e; margin-bottom: 4px; }
-        .results > p { color: #888; font-size: 13px; margin-bottom: 16px; }
+        .results h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px; color: #c8a851; margin-bottom: 4px;
+        }
+        .results > p { color: #666; font-size: 13px; margin-bottom: 16px; }
 
         .download-btn {
             display: inline-flex; align-items: center; gap: 8px;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            background: linear-gradient(135deg, #6c5ce7, #8b7cf0);
             color: white; text-decoration: none; padding: 13px 24px;
             border-radius: 10px; font-weight: 600; font-size: 14px;
             margin: 5px; cursor: pointer; border: none;
             transition: transform 0.1s;
         }
         .download-btn:hover { transform: scale(1.02); }
-        .download-btn.secondary { background: #2d2d4a; }
+        .download-btn.secondary { background: #1a1a35; border: 1px solid #2a2a48; }
 
         .qr-section {
-            margin-top: 24px; padding: 20px; background: #1e1e3a;
-            border-radius: 12px; border: 1px solid #2d2d4a;
+            margin-top: 24px; padding: 20px; background: #0f0f24;
+            border-radius: 12px; border: 1px solid #2a2a48;
         }
         .qr-section img {
             width: 160px; height: 160px; border-radius: 8px;
             background: white; padding: 8px;
         }
-        .qr-section .name { color: #a29bfe; font-weight: 600; margin-top: 6px; font-size: 13px; }
-        .qr-section .amount { color: #f6c90e; font-size: 22px; font-weight: 700; margin-top: 4px; }
+        .qr-section .name { color: #c8a851; font-weight: 600; margin-top: 6px; font-size: 13px; }
+        .qr-section .amount { color: #c8a851; font-size: 22px; font-weight: 700; margin-top: 4px; }
 
         /* Typing indicator */
         .typing { display: flex; gap: 4px; padding: 8px 0; }
         .typing span {
             width: 6px; height: 6px; border-radius: 50%;
-            background: #6c5ce7; animation: bounce 1.4s infinite;
+            background: #c8a851; animation: bounce 1.4s infinite;
         }
         .typing span:nth-child(2) { animation-delay: 0.2s; }
         .typing span:nth-child(3) { animation-delay: 0.4s; }
@@ -258,27 +275,27 @@
         }
 
         /* Progress */
-        .progress { height: 3px; background: #1a1a3a; }
+        .progress { height: 2px; background: #0f0f24; }
         .progress-bar {
-            height: 100%; background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+            height: 100%; background: linear-gradient(90deg, #c8a851, #e8d5a3);
             transition: width 0.5s ease; width: 0%;
         }
         .step-label {
-            padding: 6px 20px; font-size: 11px; color: #555;
-            letter-spacing: 1px; text-transform: uppercase;
+            padding: 6px 20px; font-size: 10px; color: #444;
+            letter-spacing: 1.5px; text-transform: uppercase;
         }
 
         /* E-sig disclaimer */
         .esig-note {
-            font-size: 10px; color: #666; margin-top: 10px; line-height: 1.5;
-            padding: 8px 12px; background: #1a1a35; border-radius: 8px;
-            border: 1px solid #2d2d4a;
+            font-size: 10px; color: #555; margin-top: 10px; line-height: 1.5;
+            padding: 8px 12px; background: #0f0f24; border-radius: 8px;
+            border: 1px solid #1e1e3a;
         }
 
         @media (max-width: 480px) {
             body { padding: 12px 10px 30px; }
-            .header h1 { font-size: 22px; }
-            .messages { max-height: calc(100vh - 200px); padding: 16px; }
+            .header h1 { font-size: 24px; }
+            .messages { max-height: calc(100vh - 220px); padding: 16px; }
             .bubble { max-width: 88%; font-size: 13px; }
         }
     </style>
@@ -287,13 +304,14 @@
     <div class="container">
         <div class="header">
             <div class="logo">Travis Atreo Productions</div>
-            <h1>Let's Make Music</h1>
-            <p>Answer a few quick questions to get started</p>
+            <h1>Let's Create Something Great</h1>
+            <p>Premium music production for artists & labels</p>
+            <div class="tagline">Onboarding & Booking</div>
         </div>
 
         <div class="chat-area">
             <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
-            <div class="step-label" id="stepLabel">Step 1 of 6</div>
+            <div class="step-label" id="stepLabel">Step 1 of 7</div>
             <div class="messages" id="messages"></div>
             <div class="input-area" id="inputArea">
                 <input type="text" id="userInput" placeholder="Type your answer..." autocomplete="off">
@@ -307,7 +325,8 @@
         // ============ CONFIG ============
         const QR_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAcIAAAHCAQAAAABUY/ToAAAD70lEQVR4nO2dTY6kOgyAPz8i1RKkPsAcBW7WZ3o3gKP0AUYiy5KCPAvnhzC7mSlVVcteoIbUJ4Jk2bGduEX5M9n++0MQnHTSSScvZJQsC4fIAsgSA2wSAA4RkWDPyi/D82br5MuRARgSAAKgxI98OyvIvA6aB0gwrwDx40mzdfIVyQCAmCLFD5V5vYtCQrdpRzcZEow7mHLFCeb/nzVbJ9+C3KZB2SaQz/0Q+dSErhzyyHc6+dZk6O4OgRiSzF+CEj+UbfoZdP66qcDwj97p5PciTYdKgG8ODYUUYLwLpj5jQm0VNCoQnzVbJ1+VPCzYAkAWQJZ4U1niLevW/BVsgE1ERKa/f6eT34cM2bQA2b6MCbZpADhEt2nALsRmr/7unU5+LxLVfSjmxtbPgzLvoOuoNqDrmFBVrb9T1fW9vtPJx5FVhwbVlUFVTZEAxmSKdPkJ8z64DjnZRHUvNmfWlJ9VY5T1ZUz2l5kgdTvk5FlUNSuI6t5ZGhswD9YGsoa5DjlZJTsvszRQPFh5xpjMVMGoJ71yHXKyip5kP5ul80WrIoHrkJMXKfFWVhVzXnOxTZdRW2y7DjnZSQ66qqMC6iqIbJFsPTSqZtfmOuRkT1pJI5AT06Mq23SILaJtdAeIIroCvn/IyV60F2CwlVGO7ZsHK7lIj8uc7KX5MbutIZkFbHkl3RbWxfG5DjlZpKlKzgBpjfIh26EctZX8kK+HnOyk5Ie02JexZqLHdKqmnQbUax1OnqWZINOSteakAa6pIfD1kJNXyVZl1FrhqOnoHU41tDrgvszJ30jbAWvhlywcIjKVSivxZhomSxQ7OZQPDb3fdzr5GDI7qpqdtj1opxgMOGUWtdVm3+s7nXwced4/1LxalkGzSu2UEiwelzl5la6W2vKJ+VLyjmd75TrkZC+5Sla2eGjbNXQqwZaNRTkR4HGZkxdy0FwH+6HlNEcU0TUGIIpAd0ZRljE9cbZOvhpJWSaXLOJanhU7lHqHViyS2yEni2QdUtVrSNY82NrqsJ4fcvI3OYfr9CUNWyiV+kfdLuuxvZOdtL4fyKxHAI58Bt/6xNiooMSANXPwvh9OdnLePLS3ME1rIKbdWY/d62VOXuWaHzqlrduiaGwHYMshM9chJ7N0fdDiZM3Q2GRIpZHVgMCtNEOLh+RWae/1nU4+msxbpKm783dy78XPdsJjz8XYp8/WydciT/WyEsxzKpC1Y9ItanNf5mQn4XIvsx5Bt2lIMn8FmPcD3X7chXmfSoT2tNk6+bpkicbuAnZA6C5sE2D+zbpZlT4ONvCO3+nkI8guLru0iLHgDFoXGcDjMicvIv6/Fpx00sknk78A7UPgK2jXgTIAAAAASUVORK5CYII=";
         const QR_DATA_URL = "data:image/png;base64," + QR_BASE64;
-        const RATE_PER_SONG = 2500;
+        const STANDARD_RATE = 1500;
+        let ratePerSong = STANDARD_RATE;
 
         // ============ STATE ============
         let currentStep = 0;
@@ -327,7 +346,7 @@
         const QUESTIONS = [
             {
                 key: "client_name",
-                message: "Hey! Welcome to Travis Atreo Productions. I'm going to walk you through everything to get your project rolling. First up \u2014 what's your full name?",
+                message: "Welcome to Travis Atreo Productions. I'll walk you through everything to get your project started. First \u2014 what's your full name?",
                 placeholder: "Your full name",
                 validate: v => v.trim().length >= 2,
                 error: "I need your full name for the contract."
@@ -353,6 +372,21 @@
                 quickReplies: ["1", "2", "3", "5"],
                 validate: v => !isNaN(v) && parseInt(v) > 0 && parseInt(v) <= 20,
                 error: "Enter a number between 1 and 20."
+            },
+            {
+                key: "quoted_rate",
+                message: "Our standard rate is <strong>$1,500 per song</strong>. If Travis quoted you a different rate, enter the per-song amount below. Otherwise, confirm the standard rate.",
+                placeholder: "Per-song rate in dollars",
+                quickReplies: ["$1,500 (standard)", "I was quoted $1,000"],
+                validate: v => {
+                    const cleaned = v.replace(/[^0-9]/g, '');
+                    return !isNaN(cleaned) && parseInt(cleaned) >= 500 && parseInt(cleaned) <= 5000;
+                },
+                error: "Please enter a valid per-song rate.",
+                transform: v => {
+                    const cleaned = v.replace(/[^0-9]/g, '');
+                    return parseInt(cleaned);
+                }
             },
             {
                 key: "start_date",
@@ -444,6 +478,11 @@
         function askQuestion() {
             if (currentStep >= QUESTIONS.length) {
                 phase = 'summary';
+                // Set the rate based on what they answered
+                const quotedRate = parseInt(answers.quoted_rate);
+                if (!isNaN(quotedRate) && quotedRate >= 500) {
+                    ratePerSong = quotedRate;
+                }
                 showSummary();
                 return;
             }
@@ -495,11 +534,11 @@
         function showSummary() {
             inputArea.classList.add('hidden');
             const n = parseInt(answers.num_songs);
-            const total = RATE_PER_SONG * n;
-            const deposit = n > 1 ? Math.floor(total / 2) : total;
+            const total = ratePerSong * n;
+            const deposit = Math.ceil(total * 0.5);
             const today = new Date().toISOString().split('T')[0];
 
-            computedData = { numSongs: n, total, deposit, today,
+            computedData = { numSongs: n, total, deposit, ratePerSong, today,
                 invoiceNum: `TAP-${today.replace(/-/g,'')}-${answers.client_name.split(' ')[0].toUpperCase()}`,
                 startDateFmt: formatDate(answers.start_date),
                 endDateFmt: formatDate(addWeeks(answers.start_date, 4 * n)),
@@ -520,9 +559,12 @@
                         <div class="row"><span class="label">Email</span><span class="value">${answers.client_email}</span></div>
                         <div class="row"><span class="label">Project</span><span class="value">${answers.project_name}</span></div>
                         <div class="row"><span class="label">Songs</span><span class="value">${n}</span></div>
+                        <div class="row"><span class="label">Rate</span><span class="value">$${ratePerSong.toLocaleString()}/song</span></div>
                         <div class="row"><span class="label">Start Date</span><span class="value">${computedData.startDateFmt}</span></div>
                         <div class="row"><span class="label">Notes</span><span class="value">${notesDisplay}</span></div>
-                        <div class="row total"><span class="label">Amount Due</span><span class="value">$${deposit.toLocaleString()}</span></div>
+                        <div class="row"><span class="label">Total</span><span class="value">$${total.toLocaleString()}</span></div>
+                        <div class="row highlight"><span class="label">Security Deposit (50%)</span><span class="value">$${deposit.toLocaleString()}</span></div>
+                        <div class="deposit-note">A 50% security deposit of <strong>$${deposit.toLocaleString()}</strong> is required upfront via Zelle before production begins. The remaining balance of <strong>$${(total - deposit).toLocaleString()}</strong> is due upon delivery of final masters.</div>
                     </div>
                     <div style="margin-top:12px; text-align:center;">
                         <button class="action-btn primary" onclick="confirmSummary()">Looks Good</button>
@@ -536,6 +578,7 @@
             disableActionBtns();
             addMessage("No problem \u2014 let's start over.", 'bot');
             currentStep = 0; answers = {}; phase = 'questions';
+            ratePerSong = STANDARD_RATE;
             inputArea.classList.remove('hidden');
             setTimeout(() => askQuestion(), 400);
         }
@@ -554,10 +597,10 @@
                 { title: "Parties", text: `This Agreement is between Travis Graham, d/b/a Travis Atreo Productions ("Producer") and ${answers.client_name} ("Client").` },
                 { title: "Scope of Work", text: `Producer will provide music production services for "${answers.project_name}" \u2014 ${d.numSongs} song(s). Includes beat production, arrangement, vocal production, mixing, and mastering.` },
                 { title: "Timeline", text: `Production starts ${d.startDateFmt}, estimated completion ${d.endDateFmt}. Client delays may extend timeline.` },
-                { title: "Compensation", text: `Total: $${d.total.toLocaleString()}. ${d.numSongs > 1 ? `Deposit of $${d.deposit.toLocaleString()} due now; balance due on delivery.` : `$${d.deposit.toLocaleString()} due upon signing via Zelle.`} Late payments: 5% weekly fee. Production pauses after 7 days past due.` },
+                { title: "Compensation", text: `Total: $${d.total.toLocaleString()} ($${d.ratePerSong.toLocaleString()}/song). A non-refundable security deposit of 50% ($${d.deposit.toLocaleString()}) is due upfront via Zelle before production begins. Remaining balance of $${(d.total - d.deposit).toLocaleString()} due upon delivery of final masters. Late payments: 5% weekly fee. Production pauses after 7 days past due.` },
                 { title: "Revisions", text: `2 rounds of revisions per song included. Additional revisions billed at $150/hr.` },
                 { title: "Ownership & Rights", text: `Client receives exclusive rights to final recordings upon full payment. Producer retains portfolio/promo rights. Credit: "Produced by Travis Atreo" on all releases.` },
-                { title: "Cancellation", text: `Either party can cancel with 7 days notice. Client cancels after start: deposit non-refundable. Producer cancels: pro-rated refund.` },
+                { title: "Cancellation", text: `Either party can cancel with 7 days notice. Client cancels after start: security deposit is non-refundable. Producer cancels: pro-rated refund for uncompleted work.` },
                 { title: "Confidentiality", text: `Both parties keep project details and unreleased music confidential until Client authorizes release.` },
             ];
         }
@@ -618,7 +661,7 @@
             setTimeout(() => {
                 hideTyping();
                 addBotWidget(`
-                    <div class="bubble" style="background:#1e1e3a; border:1px solid #2d2d4a; border-radius:16px; border-bottom-left-radius:4px; padding:14px;">
+                    <div class="bubble" style="background:#111128; border:1px solid #1e1e3a; border-radius:16px; border-bottom-left-radius:4px; padding:14px;">
                         <div style="margin-bottom:10px; font-size:14px;">Sign below to accept the agreement:</div>
                         <div class="sig-area">
                             <div class="sig-tabs">
@@ -662,12 +705,10 @@
             sigCtx.lineCap = 'round';
             sigCtx.lineJoin = 'round';
 
-            // Mouse
             sigCanvas.addEventListener('mousedown', sigStart);
             sigCanvas.addEventListener('mousemove', sigMove);
             sigCanvas.addEventListener('mouseup', sigEnd);
             sigCanvas.addEventListener('mouseleave', sigEnd);
-            // Touch
             sigCanvas.addEventListener('touchstart', e => { e.preventDefault(); sigStart(e.touches[0]); }, { passive: false });
             sigCanvas.addEventListener('touchmove', e => { e.preventDefault(); sigMove(e.touches[0]); }, { passive: false });
             sigCanvas.addEventListener('touchend', sigEnd);
@@ -753,7 +794,7 @@
             const doc = new jsPDF({ unit: 'pt', format: 'letter' });
             const w = 612, h = 792;
 
-            doc.setFillColor(26, 26, 46); doc.rect(0, 0, w, h, 'F');
+            doc.setFillColor(10, 10, 20); doc.rect(0, 0, w, h, 'F');
             doc.setFillColor(108, 92, 231); doc.rect(0, 0, w, 130, 'F');
 
             doc.setTextColor(255, 255, 255);
@@ -773,7 +814,7 @@
             doc.text("travis@travisatreo.com", 40, 107);
 
             let y = 165;
-            doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+            doc.setTextColor(200, 168, 81); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
             doc.text("BILL TO", 40, y);
             doc.setTextColor(245, 245, 245); doc.setFontSize(13);
             doc.text(data.client_name, 40, y + 22);
@@ -781,18 +822,18 @@
             doc.setTextColor(176, 176, 176);
             doc.text(data.client_email, 40, y + 40);
 
-            doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+            doc.setTextColor(200, 168, 81); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
             doc.text("INVOICE DATE", w - 40, y, { align: 'right' });
             doc.setTextColor(245, 245, 245); doc.setFontSize(11); doc.setFont('helvetica', 'normal');
             doc.text(data.date, w - 40, y + 18, { align: 'right' });
-            doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+            doc.setTextColor(200, 168, 81); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
             doc.text("DUE DATE", w - 40, y + 42, { align: 'right' });
-            doc.setTextColor(246, 201, 14); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+            doc.setTextColor(200, 168, 81); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
             doc.text(data.due_date, w - 40, y + 58, { align: 'right' });
 
             let ty = y + 100;
-            doc.setFillColor(45, 45, 74); doc.rect(30, ty - 5, w - 60, 28, 'F');
-            doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+            doc.setFillColor(30, 30, 50); doc.rect(30, ty - 5, w - 60, 28, 'F');
+            doc.setTextColor(200, 168, 81); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
             doc.text("DESCRIPTION", 45, ty + 12);
             doc.text("QTY", 340, ty + 12);
             doc.text("RATE", 400, ty + 12);
@@ -812,28 +853,30 @@
             doc.setTextColor(245, 245, 245);
             doc.text(`$${data.total.toLocaleString()}`, w - 45, ry + 35, { align: 'right' });
 
-            doc.setFillColor(108, 92, 231); doc.rect(330, ry + 48, w - 370, 28, 'F');
-            doc.setTextColor(255, 255, 255); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
-            doc.text("AMOUNT DUE", 345, ry + 66);
+            doc.setFillColor(200, 168, 81); doc.rect(330, ry + 48, w - 370, 28, 'F');
+            doc.setTextColor(10, 10, 20); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+            doc.text("SECURITY DEPOSIT (50%)", 345, ry + 66);
             doc.text(`$${data.deposit.toLocaleString()}`, w - 45, ry + 66, { align: 'right' });
 
             if (data.notes && data.notes.toLowerCase() !== 'none') {
-                doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+                doc.setTextColor(200, 168, 81); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
                 doc.text("NOTES", 40, ry + 105);
                 doc.setTextColor(176, 176, 176); doc.setFont('helvetica', 'normal');
                 doc.text(data.notes, 40, ry + 123);
             }
 
             let py = 530;
-            doc.setFillColor(45, 45, 74); doc.roundedRect(30, py, w - 60, 200, 10, 10, 'F');
-            doc.setTextColor(246, 201, 14); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-            doc.text("PAY WITH ZELLE", 55, py + 30);
+            doc.setFillColor(30, 30, 50); doc.roundedRect(30, py, w - 60, 200, 10, 10, 'F');
+            doc.setTextColor(200, 168, 81); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+            doc.text("PAY SECURITY DEPOSIT VIA ZELLE", 55, py + 30);
             doc.setTextColor(245, 245, 245); doc.setFontSize(11); doc.setFont('helvetica', 'normal');
             doc.text("Scan the QR code to send payment instantly.", 55, py + 50);
             doc.text("Send to: TRAVIS GRAHAM", 55, py + 68);
             doc.setTextColor(176, 176, 176); doc.setFontSize(10);
-            doc.text(`Amount Due: $${data.deposit.toLocaleString()}`, 55, py + 92);
+            doc.text(`Security Deposit: $${data.deposit.toLocaleString()}`, 55, py + 92);
             doc.text(`Reference: ${data.invoice_number}`, 55, py + 110);
+            doc.setFontSize(9);
+            doc.text("Production begins once deposit is received.", 55, py + 130);
 
             const qrX = w - 195, qrY = py + 20;
             doc.setFillColor(255, 255, 255); doc.roundedRect(qrX - 10, qrY - 5, 145, 155, 5, 5, 'F');
@@ -854,7 +897,7 @@
             const w = 612, h = 792, m = 40, tw = w - m * 2;
             let y = 140;
 
-            doc.setFillColor(26, 26, 46); doc.rect(0, 0, w, h, 'F');
+            doc.setFillColor(10, 10, 20); doc.rect(0, 0, w, h, 'F');
             doc.setFillColor(108, 92, 231); doc.rect(0, 0, w, 100, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(24); doc.setFont('helvetica', 'bold');
@@ -865,8 +908,8 @@
             doc.text(`Date: ${data.date_signed}`, w - 40, 50, { align: 'right' });
 
             function secHead(t) {
-                if (y > h - 100) { doc.addPage(); doc.setFillColor(26,26,46); doc.rect(0,0,w,h,'F'); y = 50; }
-                doc.setTextColor(246,201,14); doc.setFontSize(12); doc.setFont('helvetica','bold');
+                if (y > h - 100) { doc.addPage(); doc.setFillColor(10,10,20); doc.rect(0,0,w,h,'F'); y = 50; }
+                doc.setTextColor(200,168,81); doc.setFontSize(12); doc.setFont('helvetica','bold');
                 doc.text(t, m, y); y += 4;
                 doc.setDrawColor(108,92,231); doc.setLineWidth(1); doc.line(m, y, w-m, y); y += 18;
             }
@@ -874,7 +917,7 @@
                 doc.setTextColor(245,245,245); doc.setFontSize(10); doc.setFont('helvetica','normal');
                 const lines = doc.splitTextToSize(t, tw);
                 for (const l of lines) {
-                    if (y > h - 50) { doc.addPage(); doc.setFillColor(26,26,46); doc.rect(0,0,w,h,'F'); y = 50; }
+                    if (y > h - 50) { doc.addPage(); doc.setFillColor(10,10,20); doc.rect(0,0,w,h,'F'); y = 50; }
                     doc.text(l, m, y); y += 14;
                 }
                 y += 8;
@@ -892,8 +935,9 @@
             body(`Production commences ${data.start_date}, estimated completion ${data.end_date}. Timeline adjustable by mutual written agreement. Client delays may extend timeline.`);
 
             secHead("3. COMPENSATION");
-            body(`Total fee: $${data.total.toLocaleString()}. Payment of $${data.deposit.toLocaleString()} due upon signing via Zelle to Travis Graham.`);
-            if (data.num_songs > 1) body(`Remaining $${(data.total - data.deposit).toLocaleString()} due upon delivery of final masters.`);
+            body(`Total fee: $${data.total.toLocaleString()} ($${data.rate_per_song.toLocaleString()} per song).`);
+            body(`A non-refundable security deposit of 50% ($${data.deposit.toLocaleString()}) is required upfront via Zelle to Travis Graham before production begins.`);
+            body(`Remaining balance of $${(data.total - data.deposit).toLocaleString()} due upon delivery of final masters.`);
             body(`Late payments: 5% weekly fee. Production pauses on balances exceeding 7 days past due.`);
 
             secHead("4. REVISIONS");
@@ -903,13 +947,13 @@
             body(`Upon full payment, Client receives exclusive rights to final recordings for commercial release. Producer retains portfolio/promo rights. Credit ("Produced by Travis Atreo") required on all public releases.`);
 
             secHead("6. CANCELLATION");
-            body(`Either party may cancel with 7 days written notice. Client cancels post-start: deposit non-refundable. Producer cancels: pro-rated refund for uncompleted work.`);
+            body(`Either party may cancel with 7 days written notice. Client cancels post-start: security deposit is non-refundable. Producer cancels: pro-rated refund for uncompleted work.`);
 
             secHead("7. CONFIDENTIALITY");
             body(`Both parties keep project details and unreleased music confidential until Client authorizes release.`);
 
             // Signatures
-            if (y > h - 200) { doc.addPage(); doc.setFillColor(26,26,46); doc.rect(0,0,w,h,'F'); y = 50; }
+            if (y > h - 200) { doc.addPage(); doc.setFillColor(10,10,20); doc.rect(0,0,w,h,'F'); y = 50; }
             y += 10;
             secHead("SIGNATURES");
             y += 10;
@@ -923,11 +967,10 @@
             doc.line(m, y, 260, y);
             doc.line(320, y, w - m, y);
 
-            // Client signature
             if (signed && signatureData) {
                 if (signatureData.type === 'typed') {
                     doc.setFont('helvetica', 'italic');
-                    doc.setTextColor(162, 155, 254);
+                    doc.setTextColor(200, 168, 81);
                     doc.setFontSize(18);
                     doc.text(signatureData.value, 320, y - 8);
                 } else if (signatureData.type === 'drawn') {
@@ -969,12 +1012,13 @@
                 invoice_number: d.invoiceNum, date: d.dateFmt, due_date: d.dueDateFmt,
                 client_name: answers.client_name, client_email: answers.client_email,
                 project_name: answers.project_name, num_songs: d.numSongs,
-                rate_per_song: RATE_PER_SONG, total: d.total, deposit: d.deposit,
+                rate_per_song: d.ratePerSong, total: d.total, deposit: d.deposit,
                 notes: answers.notes,
             };
             const contractData = {
                 client_name: answers.client_name, client_email: answers.client_email,
                 project_name: answers.project_name, num_songs: d.numSongs,
+                rate_per_song: d.ratePerSong,
                 start_date: d.startDateFmt, end_date: d.endDateFmt,
                 total: d.total, deposit: d.deposit, date_signed: d.dateFmt,
             };
@@ -990,22 +1034,23 @@
             addMessage(
                 `Done! Your invoice and ${signed ? 'signed ' : ''}contract are ready. ` +
                 `Total: <strong>$${d.total.toLocaleString()}</strong> \u2014 ` +
-                `Due now: <strong>$${d.deposit.toLocaleString()}</strong>`
+                `Security deposit due now: <strong>$${d.deposit.toLocaleString()}</strong>`
             );
 
             const results = document.getElementById('results');
             results.classList.add('active');
             results.innerHTML = `
                 <h2>You're All Set</h2>
-                <p>Download your documents, then scan the QR code to send payment.</p>
+                <p>Download your documents, then scan the QR code to send your security deposit.</p>
                 <a href="${invURL}" download="Invoice_${safeName}.pdf" class="download-btn">Invoice</a>
                 <a href="${conURL}" download="Contract${signed ? '_Signed' : ''}_${safeName}.pdf" class="download-btn secondary">Contract${signedLabel}</a>
                 <div class="qr-section">
-                    <p style="color: #888; font-size: 12px; margin-bottom: 10px;">SCAN TO PAY WITH ZELLE</p>
+                    <p style="color: #666; font-size: 11px; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;">Scan to Pay Security Deposit via Zelle</p>
                     <img src="${QR_DATA_URL}" alt="Zelle QR Code">
                     <div class="name">TRAVIS GRAHAM</div>
                     <div class="amount">$${d.deposit.toLocaleString()}</div>
                     <p style="color: #555; font-size: 11px; margin-top: 6px;">Ref: ${d.invoiceNum}</p>
+                    <p style="color: #444; font-size: 10px; margin-top: 8px;">Production begins once deposit is received.</p>
                 </div>
             `;
 
