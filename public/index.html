@@ -1282,23 +1282,31 @@
 
         function notifyProducer(signed) {
             const d = computedData;
+            const payload = {
+                client_name: answers.client_name,
+                client_email: answers.client_email,
+                project_name: answers.project_name,
+                num_songs: d.numSongs,
+                rate_per_song: d.ratePerSong,
+                total: d.total,
+                deposit: d.deposit,
+                start_date: d.startDateFmt,
+                notes: answers.notes,
+                signed: signed,
+                invoice_number: d.invoiceNum,
+            };
+            // Save to database
+            fetch('/api/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            }).catch(() => {});
+            // Also send email notification
             fetch('/api/notify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    client_name: answers.client_name,
-                    client_email: answers.client_email,
-                    project_name: answers.project_name,
-                    num_songs: d.numSongs,
-                    rate_per_song: d.ratePerSong,
-                    total: d.total,
-                    deposit: d.deposit,
-                    start_date: d.startDateFmt,
-                    notes: answers.notes,
-                    signed: signed,
-                    invoice_number: d.invoiceNum,
-                }),
-            }).catch(() => {}); // Silent fail — don't break the client experience
+                body: JSON.stringify(payload),
+            }).catch(() => {});
         }
 
         // ============ START ============
