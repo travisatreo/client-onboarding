@@ -224,6 +224,24 @@
         .summary-card .row.highlight .label { color: #c8a851; font-weight: 600; }
         .summary-card .row.highlight .value { color: #c8a851; font-weight: 700; }
         .summary-card .row.total .value { color: #c8a851; font-size: 16px; font-weight: 700; }
+        .summary-card .row.editable { cursor: pointer; border-radius: 6px; padding: 8px 6px; margin: 0 -6px; transition: background 0.2s; }
+        .summary-card .row.editable:hover { background: rgba(108, 92, 231, 0.1); }
+        .summary-card .row.editable .value { display: flex; align-items: center; gap: 6px; }
+        .summary-card .row.editable .edit-icon { font-size: 10px; color: #6c5ce7; opacity: 0.5; }
+        .summary-card .row.editable:hover .edit-icon { opacity: 1; }
+        .summary-card .row.editing { background: rgba(108, 92, 231, 0.08); border-radius: 6px; padding: 8px 6px; margin: 0 -6px; }
+        .summary-card .edit-input {
+            background: #0a0a18; border: 1px solid #6c5ce7; border-radius: 6px;
+            color: #f5f5f5; padding: 6px 10px; font-size: 13px; font-family: 'Inter', sans-serif;
+            width: 100%; outline: none; margin-top: 4px;
+        }
+        .summary-card .edit-actions { display: flex; gap: 6px; margin-top: 6px; justify-content: flex-end; }
+        .summary-card .edit-actions button {
+            font-size: 11px; padding: 4px 12px; border-radius: 6px; border: none;
+            font-family: 'Inter', sans-serif; cursor: pointer; font-weight: 600;
+        }
+        .summary-card .edit-actions .save-btn { background: #6c5ce7; color: white; }
+        .summary-card .edit-actions .cancel-btn { background: #1a1a35; color: #888; border: 1px solid #2a2a48; }
         .summary-card .deposit-note {
             margin-top: 10px; padding: 10px 12px; background: rgba(200, 168, 81, 0.08);
             border: 1px solid rgba(200, 168, 81, 0.2); border-radius: 8px;
@@ -660,37 +678,130 @@
             showTyping();
             setTimeout(() => {
                 hideTyping();
-                const notesDisplay = (answers.notes && answers.notes.toLowerCase() !== 'none') ? answers.notes : '\u2014';
-                addMessage("Here's a summary of everything. Make sure it looks right:");
-
-                addBotWidget(`
-                    <div class="summary-card">
-                        <div class="row"><span class="label">Name</span><span class="value">${answers.client_name}</span></div>
-                        <div class="row"><span class="label">Email</span><span class="value">${answers.client_email}</span></div>
-                        <div class="row"><span class="label">Project</span><span class="value">${answers.project_name}</span></div>
-                        <div class="row"><span class="label">Songs</span><span class="value">${n}</span></div>
-                        <div class="row"><span class="label">Rate</span><span class="value">$${ratePerSong.toLocaleString()}/song</span></div>
-                        <div class="row"><span class="label">Start Date</span><span class="value">${computedData.startDateFmt}</span></div>
-                        <div class="row"><span class="label">Notes</span><span class="value">${notesDisplay}</span></div>
-                        <div class="row"><span class="label">Total</span><span class="value">$${total.toLocaleString()}</span></div>
-                        <div class="row highlight"><span class="label">Security Deposit (50%)</span><span class="value">$${deposit.toLocaleString()}</span></div>
-                        <div class="deposit-note">A 50% security deposit of <strong>$${deposit.toLocaleString()}</strong> is required upfront via Zelle before production begins. The remaining balance of <strong>$${(total - deposit).toLocaleString()}</strong> is due upon delivery of final masters.</div>
-                    </div>
-                    <div style="margin-top:12px; text-align:center;">
-                        <button class="action-btn primary" onclick="confirmSummary()">Looks Good</button>
-                        <button class="action-btn secondary" onclick="restartQuestions()">Edit Answers</button>
-                    </div>
-                `);
+                addMessage("Here's your summary. Tap any field to edit it, or confirm when everything looks right:");
+                renderSummaryCard();
             }, 600);
         }
 
-        function restartQuestions() {
-            disableActionBtns();
-            addMessage("No problem \u2014 let's start over.", 'bot');
-            currentStep = 0; answers = {}; phase = 'questions';
-            ratePerSong = STANDARD_RATE;
-            inputArea.classList.remove('hidden');
-            setTimeout(() => askQuestion(), 400);
+        function renderSummaryCard() {
+            const n = parseInt(answers.num_songs);
+            const total = ratePerSong * n;
+            const deposit = Math.ceil(total * 0.5);
+            computedData.total = total;
+            computedData.deposit = deposit;
+            computedData.numSongs = n;
+            computedData.ratePerSong = ratePerSong;
+
+            const notesDisplay = (answers.notes && answers.notes.toLowerCase() !== 'none') ? answers.notes : '\u2014';
+
+            // Remove previous summary widget if re-rendering
+            const prev = document.getElementById('summaryWidget');
+            if (prev) prev.remove();
+
+            const widget = addBotWidget(`
+                <div class="summary-card" id="summaryCardInner">
+                    <div class="row editable" onclick="editField('client_name')"><span class="label">Name</span><span class="value" id="sv_client_name">${answers.client_name}<span class="edit-icon">\u270E</span></span></div>
+                    <div class="row editable" onclick="editField('client_email')"><span class="label">Email</span><span class="value" id="sv_client_email">${answers.client_email}<span class="edit-icon">\u270E</span></span></div>
+                    <div class="row editable" onclick="editField('project_name')"><span class="label">Project</span><span class="value" id="sv_project_name">${answers.project_name}<span class="edit-icon">\u270E</span></span></div>
+                    <div class="row editable" onclick="editField('num_songs')"><span class="label">Songs</span><span class="value" id="sv_num_songs">${n}<span class="edit-icon">\u270E</span></span></div>
+                    <div class="row"><span class="label">Rate</span><span class="value">$${ratePerSong.toLocaleString()}/song</span></div>
+                    <div class="row editable" onclick="editField('start_date')"><span class="label">Start Date</span><span class="value" id="sv_start_date">${computedData.startDateFmt}<span class="edit-icon">\u270E</span></span></div>
+                    <div class="row editable" onclick="editField('notes')"><span class="label">Notes</span><span class="value" id="sv_notes">${notesDisplay}<span class="edit-icon">\u270E</span></span></div>
+                    <div class="row"><span class="label">Total</span><span class="value">$${total.toLocaleString()}</span></div>
+                    <div class="row highlight"><span class="label">Security Deposit (50%)</span><span class="value">$${deposit.toLocaleString()}</span></div>
+                    <div class="deposit-note">A 50% security deposit of <strong>$${deposit.toLocaleString()}</strong> is required upfront via Zelle before production begins. The remaining balance of <strong>$${(total - deposit).toLocaleString()}</strong> is due upon delivery of final masters.</div>
+                </div>
+                <div style="margin-top:12px; text-align:center;">
+                    <button class="action-btn primary" onclick="confirmSummary()">Confirm & Continue</button>
+                </div>
+            `);
+            widget.id = 'summaryWidget';
+        }
+
+        let editingField = null;
+
+        function editField(key) {
+            if (editingField) return; // already editing something
+            editingField = key;
+            const row = document.getElementById('sv_' + key)?.closest('.row');
+            if (!row) return;
+
+            const currentVal = key === 'start_date' ? answers.start_date : (key === 'num_songs' ? answers.num_songs : answers[key]);
+            const label = row.querySelector('.label').textContent;
+
+            row.classList.remove('editable');
+            row.classList.add('editing');
+            row.onclick = null;
+            row.innerHTML = `
+                <div style="width:100%;">
+                    <div class="label" style="margin-bottom:4px;">${label}</div>
+                    <input class="edit-input" id="editInput" type="text" value="${currentVal}" autofocus>
+                    <div class="edit-actions">
+                        <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+                        <button class="save-btn" onclick="saveEdit('${key}')">Save</button>
+                    </div>
+                </div>
+            `;
+            const inp = document.getElementById('editInput');
+            inp.focus();
+            inp.select();
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Enter') saveEdit(key);
+                if (e.key === 'Escape') cancelEdit();
+            });
+            scrollToBottom();
+        }
+
+        function saveEdit(key) {
+            const inp = document.getElementById('editInput');
+            if (!inp) return;
+            let val = inp.value.trim();
+            if (!val) { cancelEdit(); return; }
+
+            // Validate based on field
+            if (key === 'client_email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                inp.style.borderColor = '#e74c3c';
+                inp.placeholder = 'Enter a valid email';
+                return;
+            }
+            if (key === 'num_songs') {
+                const parsed = parseInt(val);
+                if (isNaN(parsed) || parsed < 1 || parsed > 20) {
+                    inp.style.borderColor = '#e74c3c';
+                    inp.placeholder = '1-20';
+                    return;
+                }
+                val = String(parsed);
+            }
+            if (key === 'client_name' && val.length < 2) {
+                inp.style.borderColor = '#e74c3c';
+                return;
+            }
+
+            // Handle start_date transform
+            if (key === 'start_date') {
+                const q = QUESTIONS.find(q => q.key === 'start_date');
+                answers[key] = q.transform ? q.transform(val) : val;
+                computedData.startDateFmt = formatDate(answers.start_date);
+                computedData.endDateFmt = formatDate(addWeeks(answers.start_date, 4 * parseInt(answers.num_songs)));
+            } else {
+                answers[key] = val;
+            }
+
+            // Recalc if songs changed
+            if (key === 'num_songs') {
+                const n = parseInt(val);
+                computedData.endDateFmt = formatDate(addWeeks(answers.start_date, 4 * n));
+            }
+
+            editingField = null;
+            // Re-render the whole summary card with updated values
+            renderSummaryCard();
+        }
+
+        function cancelEdit() {
+            editingField = null;
+            renderSummaryCard();
         }
 
         function confirmSummary() {
