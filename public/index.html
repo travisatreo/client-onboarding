@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Travis Atreo Productions — Let's Get Started</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a1a;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 16px 40px;
+        }
+
+        .container { max-width: 520px; width: 100%; }
+
+        /* Header */
+        .header { text-align: center; margin-bottom: 24px; }
+        .header .logo {
+            font-size: 12px; letter-spacing: 3px; color: #a29bfe;
+            text-transform: uppercase; margin-bottom: 6px;
+        }
+        .header h1 {
+            font-size: 26px; font-weight: 700;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+        .header p { color: #888; font-size: 13px; }
+
+        /* Chat area */
+        .chat-area {
+            background: #12122a; border-radius: 16px;
+            border: 1px solid #2d2d4a; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        .messages {
+            flex: 1; padding: 20px; overflow-y: auto;
+            max-height: calc(100vh - 240px);
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 14px; display: flex; gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.bot .avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0; margin-top: 4px;
+        }
+        .message.user { flex-direction: row-reverse; }
+
+        .bubble {
+            padding: 11px 15px; border-radius: 16px;
+            max-width: 82%; font-size: 14px; line-height: 1.5;
+        }
+        .message.bot .bubble {
+            background: #1e1e3a; border: 1px solid #2d2d4a;
+            border-bottom-left-radius: 4px;
+        }
+        .message.user .bubble {
+            background: #6c5ce7; border-bottom-right-radius: 4px;
+        }
+
+        /* Input */
+        .input-area {
+            padding: 14px 20px; border-top: 1px solid #2d2d4a;
+            display: flex; gap: 10px;
+        }
+        .input-area.hidden { display: none; }
+        .input-area input {
+            flex: 1; background: #1a1a3a; border: 1px solid #3d3d5c;
+            border-radius: 10px; padding: 12px 14px; color: #f5f5f5;
+            font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-area input:focus { border-color: #6c5ce7; }
+        .input-area input::placeholder { color: #555; }
+        .input-area button {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            border: none; border-radius: 10px; padding: 12px 18px;
+            color: white; font-weight: 600; font-size: 14px;
+            cursor: pointer; transition: transform 0.1s, opacity 0.2s;
+            white-space: nowrap;
+        }
+        .input-area button:hover { opacity: 0.9; }
+        .input-area button:active { transform: scale(0.97); }
+
+        /* Quick replies */
+        .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .quick-reply {
+            background: transparent; border: 1px solid #6c5ce7;
+            color: #a29bfe; border-radius: 20px; padding: 7px 14px;
+            font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        .quick-reply:hover { background: #6c5ce7; color: white; }
+        .quick-reply:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+        /* Action buttons (confirm, sign, etc.) */
+        .action-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 11px 22px; border-radius: 10px; border: none;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all 0.2s;
+            margin: 4px;
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+        }
+        .action-btn.primary:hover { opacity: 0.9; transform: scale(1.01); }
+        .action-btn.secondary {
+            background: #2d2d4a; color: #a29bfe;
+        }
+        .action-btn.secondary:hover { background: #3d3d5c; }
+        .action-btn.gold {
+            background: linear-gradient(135deg, #f6c90e, #f0a500);
+            color: #1a1a2e;
+        }
+        .action-btn.gold:hover { opacity: 0.9; }
+        .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Contract review card */
+        .contract-card {
+            background: #1a1a35; border: 1px solid #3d3d5c;
+            border-radius: 12px; margin-top: 12px; overflow: hidden;
+        }
+        .contract-card .cc-header {
+            padding: 12px 16px; background: #2d2d4a;
+            font-size: 12px; font-weight: 600; letter-spacing: 1px;
+            color: #a29bfe; text-transform: uppercase;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+        }
+        .contract-card .cc-header .arrow { transition: transform 0.2s; }
+        .contract-card .cc-header.open .arrow { transform: rotate(180deg); }
+        .contract-card .cc-body {
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
+        }
+        .contract-card .cc-body.open { max-height: 1200px; }
+        .contract-card .cc-body-inner {
+            padding: 16px; font-size: 12px; line-height: 1.7; color: #ccc;
+        }
+        .contract-card .cc-body-inner .section-title {
+            color: #f6c90e; font-weight: 600; font-size: 12px;
+            margin-top: 12px; margin-bottom: 4px; text-transform: uppercase;
+        }
+        .contract-card .cc-body-inner .section-title:first-child { margin-top: 0; }
+
+        /* Signature pad */
+        .sig-area { margin-top: 12px; }
+        .sig-tabs {
+            display: flex; gap: 0; margin-bottom: 10px;
+        }
+        .sig-tab {
+            flex: 1; padding: 8px; text-align: center; font-size: 12px;
+            font-weight: 600; cursor: pointer; border: 1px solid #3d3d5c;
+            color: #888; background: #1a1a3a; font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        .sig-tab:first-child { border-radius: 8px 0 0 8px; }
+        .sig-tab:last-child { border-radius: 0 8px 8px 0; }
+        .sig-tab.active { background: #6c5ce7; color: white; border-color: #6c5ce7; }
+
+        .sig-draw-area {
+            background: #fafafa; border-radius: 8px; position: relative;
+            height: 100px; cursor: crosshair; touch-action: none;
+        }
+        .sig-draw-area canvas {
+            width: 100%; height: 100%; border-radius: 8px;
+        }
+        .sig-draw-area .sig-placeholder {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #bbb; font-size: 13px; pointer-events: none;
+        }
+        .sig-type-area input {
+            width: 100%; background: #fafafa; border: none; border-radius: 8px;
+            padding: 20px 16px; font-family: 'Caveat', cursive; font-size: 32px;
+            color: #1a1a2e; outline: none; text-align: center;
+        }
+        .sig-clear {
+            background: none; border: none; color: #a29bfe; font-size: 11px;
+            cursor: pointer; margin-top: 6px; font-family: 'Inter', sans-serif;
+            text-decoration: underline;
+        }
+
+        /* Summary card */
+        .summary-card {
+            background: #1a1a35; border: 1px solid #3d3d5c;
+            border-radius: 12px; margin-top: 12px; padding: 16px; text-align: left;
+        }
+        .summary-card .row {
+            display: flex; justify-content: space-between; padding: 6px 0;
+            font-size: 13px; border-bottom: 1px solid #2d2d4a;
+        }
+        .summary-card .row:last-child { border-bottom: none; }
+        .summary-card .row .label { color: #888; }
+        .summary-card .row .value { color: #f5f5f5; font-weight: 500; text-align: right; }
+        .summary-card .row.total .value { color: #f6c90e; font-size: 16px; font-weight: 700; }
+
+        /* Results */
+        .results { display: none; padding: 20px; text-align: center; }
+        .results.active { display: block; }
+        .results h2 { font-size: 20px; color: #f6c90e; margin-bottom: 4px; }
+        .results > p { color: #888; font-size: 13px; margin-bottom: 16px; }
+
+        .download-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white; text-decoration: none; padding: 13px 24px;
+            border-radius: 10px; font-weight: 600; font-size: 14px;
+            margin: 5px; cursor: pointer; border: none;
+            transition: transform 0.1s;
+        }
+        .download-btn:hover { transform: scale(1.02); }
+        .download-btn.secondary { background: #2d2d4a; }
+
+        .qr-section {
+            margin-top: 24px; padding: 20px; background: #1e1e3a;
+            border-radius: 12px; border: 1px solid #2d2d4a;
+        }
+        .qr-section img {
+            width: 160px; height: 160px; border-radius: 8px;
+            background: white; padding: 8px;
+        }
+        .qr-section .name { color: #a29bfe; font-weight: 600; margin-top: 6px; font-size: 13px; }
+        .qr-section .amount { color: #f6c90e; font-size: 22px; font-weight: 700; margin-top: 4px; }
+
+        /* Typing indicator */
+        .typing { display: flex; gap: 4px; padding: 8px 0; }
+        .typing span {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #6c5ce7; animation: bounce 1.4s infinite;
+        }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        /* Progress */
+        .progress { height: 3px; background: #1a1a3a; }
+        .progress-bar {
+            height: 100%; background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+            transition: width 0.5s ease; width: 0%;
+        }
+        .step-label {
+            padding: 6px 20px; font-size: 11px; color: #555;
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+
+        /* E-sig disclaimer */
+        .esig-note {
+            font-size: 10px; color: #666; margin-top: 10px; line-height: 1.5;
+            padding: 8px 12px; background: #1a1a35; border-radius: 8px;
+            border: 1px solid #2d2d4a;
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 12px 10px 30px; }
+            .header h1 { font-size: 22px; }
+            .messages { max-height: calc(100vh - 200px); padding: 16px; }
+            .bubble { max-width: 88%; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Travis Atreo Productions</div>
+            <h1>Let's Make Music</h1>
+            <p>Answer a few quick questions to get started</p>
+        </div>
+
+        <div class="chat-area">
+            <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="step-label" id="stepLabel">Step 1 of 6</div>
+            <div class="messages" id="messages"></div>
+            <div class="input-area" id="inputArea">
+                <input type="text" id="userInput" placeholder="Type your answer..." autocomplete="off">
+                <button id="sendBtn" onclick="handleSend()">Send</button>
+            </div>
+            <div class="results" id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============ CONFIG ============
+        const QR_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAcIAAAHCAQAAAABUY/ToAAAD70lEQVR4nO2dTY6kOgyAPz8i1RKkPsAcBW7WZ3o3gKP0AUYiy5KCPAvnhzC7mSlVVcteoIbUJ4Jk2bGduEX5M9n++0MQnHTSSScvZJQsC4fIAsgSA2wSAA4RkWDPyi/D82br5MuRARgSAAKgxI98OyvIvA6aB0gwrwDx40mzdfIVyQCAmCLFD5V5vYtCQrdpRzcZEow7mHLFCeb/nzVbJ9+C3KZB2SaQz/0Q+dSErhzyyHc6+dZk6O4OgRiSzF+CEj+UbfoZdP66qcDwj97p5PciTYdKgG8ODYUUYLwLpj5jQm0VNCoQnzVbJ1+VPCzYAkAWQJZ4U1niLevW/BVsgE1ERKa/f6eT34cM2bQA2b6MCbZpADhEt2nALsRmr/7unU5+LxLVfSjmxtbPgzLvoOuoNqDrmFBVrb9T1fW9vtPJx5FVhwbVlUFVTZEAxmSKdPkJ8z64DjnZRHUvNmfWlJ9VY5T1ZUz2l5kgdTvk5FlUNSuI6t5ZGhswD9YGsoa5DjlZJTsvszRQPFh5xpjMVMGoJ71yHXKyip5kP5ul80WrIoHrkJMXKfFWVhVzXnOxTZdRW2y7DjnZSQ66qqMC6iqIbJFsPTSqZtfmOuRkT1pJI5AT06Mq23SILaJtdAeIIroCvn/IyV60F2CwlVGO7ZsHK7lIj8uc7KX5MbutIZkFbHkl3RbWxfG5DjlZpKlKzgBpjfIh26EctZX8kK+HnOyk5Ie02JexZqLHdKqmnQbUax1OnqWZINOSteakAa6pIfD1kJNXyVZl1FrhqOnoHU41tDrgvszJ30jbAWvhlywcIjKVSivxZhomSxQ7OZQPDb3fdzr5GDI7qpqdtj1opxgMOGUWtdVm3+s7nXwced4/1LxalkGzSu2UEiwelzl5la6W2vKJ+VLyjmd75TrkZC+5Sla2eGjbNXQqwZaNRTkR4HGZkxdy0FwH+6HlNEcU0TUGIIpAd0ZRljE9cbZOvhpJWSaXLOJanhU7lHqHViyS2yEni2QdUtVrSNY82NrqsJ4fcvI3OYfr9CUNWyiV+kfdLuuxvZOdtL4fyKxHAI58Bt/6xNiooMSANXPwvh9OdnLePLS3ME1rIKbdWY/d62VOXuWaHzqlrduiaGwHYMshM9chJ7N0fdDiZM3Q2GRIpZHVgMCtNEOLh+RWae/1nU4+msxbpKm783dy78XPdsJjz8XYp8/WydciT/WyEsxzKpC1Y9ItanNf5mQn4XIvsx5Bt2lIMn8FmPcD3X7chXmfSoT2tNk6+bpkicbuAnZA6C5sE2D+zbpZlT4ONvCO3+nkI8guLru0iLHgDFoXGcDjMicvIv6/Fpx00sknk78A7UPgK2jXgTIAAAAASUVORK5CYII=";
+        const QR_DATA_URL = "data:image/png;base64," + QR_BASE64;
+        const RATE_PER_SONG = 2500;
+
+        // ============ STATE ============
+        let currentStep = 0;
+        let answers = {};
+        let phase = 'questions'; // questions | summary | review | sign | done
+        let signatureData = null;
+        let signatureType = 'type'; // 'type' or 'draw'
+        let computedData = {};
+
+        const messagesEl = document.getElementById('messages');
+        const inputEl = document.getElementById('userInput');
+        const inputArea = document.getElementById('inputArea');
+        const progressBar = document.getElementById('progressBar');
+        const stepLabel = document.getElementById('stepLabel');
+
+        // ============ QUESTIONS ============
+        const QUESTIONS = [
+            {
+                key: "client_name",
+                message: "Hey! Welcome to Travis Atreo Productions. I'm going to walk you through everything to get your project rolling. First up \u2014 what's your full name?",
+                placeholder: "Your full name",
+                validate: v => v.trim().length >= 2,
+                error: "I need your full name for the contract."
+            },
+            {
+                key: "client_email",
+                message: "Good to meet you, {client_name}. What's the best email to reach you?",
+                placeholder: "your@email.com",
+                validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+                error: "Doesn't look like a valid email \u2014 try again?"
+            },
+            {
+                key: "project_name",
+                message: "What's the name of the project or song(s) we're working on?",
+                placeholder: "e.g. 'Midnight' single, My Debut EP",
+                validate: v => v.trim().length >= 1,
+                error: "Even a working title works!"
+            },
+            {
+                key: "num_songs",
+                message: "How many songs are we producing?",
+                placeholder: "Number of songs",
+                quickReplies: ["1", "2", "3", "5"],
+                validate: v => !isNaN(v) && parseInt(v) > 0 && parseInt(v) <= 20,
+                error: "Enter a number between 1 and 20."
+            },
+            {
+                key: "start_date",
+                message: "When do you want to start?",
+                placeholder: "YYYY-MM-DD or just say ASAP",
+                quickReplies: ["ASAP", "Next Monday", "Next month"],
+                validate: () => true,
+                transform: v => {
+                    const l = v.toLowerCase();
+                    if (l === 'asap' || l === 'now') return new Date().toISOString().split('T')[0];
+                    if (l.includes('next monday')) {
+                        const d = new Date(); d.setDate(d.getDate() + ((1 + 7 - d.getDay()) % 7 || 7));
+                        return d.toISOString().split('T')[0];
+                    }
+                    if (l.includes('next month')) {
+                        const d = new Date(); d.setMonth(d.getMonth() + 1, 1);
+                        return d.toISOString().split('T')[0];
+                    }
+                    const p = new Date(v);
+                    return !isNaN(p) ? p.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+                }
+            },
+            {
+                key: "notes",
+                message: "Last one \u2014 any references, vibes, or notes I should know? (Or just say none)",
+                placeholder: "References, mood, tempo...",
+                quickReplies: ["None", "I'll send references later"],
+                validate: () => true
+            }
+        ];
+
+        // ============ HELPERS ============
+        function formatDate(s) {
+            return new Date(s + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        function addDays(s, d) { const dt = new Date(s + 'T12:00:00'); dt.setDate(dt.getDate() + d); return dt.toISOString().split('T')[0]; }
+        function addWeeks(s, w) { return addDays(s, w * 7); }
+
+        function scrollToBottom() {
+            requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
+        }
+
+        function addMessage(text, type = 'bot', extra = '') {
+            for (const [k, v] of Object.entries(answers)) text = text.replaceAll(`{${k}}`, v);
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            if (type === 'bot') {
+                div.innerHTML = `<div class="avatar">\u{1F3B5}</div><div><div class="bubble">${text}</div>${extra}</div>`;
+            } else {
+                div.innerHTML = `<div class="bubble">${text}</div>`;
+            }
+            messagesEl.appendChild(div);
+            scrollToBottom();
+            return div;
+        }
+
+        function addBotWidget(html) {
+            const div = document.createElement('div');
+            div.className = 'message bot';
+            div.innerHTML = `<div class="avatar">\u{1F3B5}</div><div style="flex:1;min-width:0">${html}</div>`;
+            messagesEl.appendChild(div);
+            scrollToBottom();
+            return div;
+        }
+
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'message bot'; div.id = 'typing';
+            div.innerHTML = `<div class="avatar">\u{1F3B5}</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+            messagesEl.appendChild(div);
+            scrollToBottom();
+        }
+        function hideTyping() { document.getElementById('typing')?.remove(); }
+
+        function setProgress(pct, label) {
+            progressBar.style.width = pct + '%';
+            if (label) stepLabel.textContent = label;
+        }
+
+        function disableQuickReplies() {
+            messagesEl.querySelectorAll('.quick-reply:not([disabled])').forEach(b => b.disabled = true);
+        }
+
+        function disableActionBtns() {
+            messagesEl.querySelectorAll('.action-btn:not([disabled])').forEach(b => b.disabled = true);
+        }
+
+        // ============ QUESTION FLOW ============
+        function askQuestion() {
+            if (currentStep >= QUESTIONS.length) {
+                phase = 'summary';
+                showSummary();
+                return;
+            }
+            const q = QUESTIONS[currentStep];
+            inputEl.placeholder = q.placeholder || "Type your answer...";
+            inputEl.value = ""; inputEl.focus();
+            setProgress((currentStep / QUESTIONS.length) * 70, `Step ${currentStep + 1} of ${QUESTIONS.length}`);
+
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                let extra = '';
+                if (q.quickReplies) {
+                    extra = '<div class="quick-replies">' +
+                        q.quickReplies.map(r => `<button class="quick-reply" onclick="quickReply('${r}')">${r}</button>`).join('') +
+                        '</div>';
+                }
+                addMessage(q.message, 'bot', extra);
+            }, 500);
+        }
+
+        function quickReply(v) { disableQuickReplies(); inputEl.value = v; handleSend(); }
+
+        function handleSend() {
+            if (phase === 'questions') sendAnswer();
+        }
+
+        function sendAnswer() {
+            const value = inputEl.value.trim();
+            if (!value) return;
+            const q = QUESTIONS[currentStep];
+            disableQuickReplies();
+
+            if (q.validate && !q.validate(value)) {
+                addMessage(value, 'user');
+                setTimeout(() => addMessage(q.error, 'bot'), 300);
+                inputEl.value = ''; return;
+            }
+            answers[q.key] = q.transform ? q.transform(value) : value;
+            addMessage(value, 'user');
+            inputEl.value = '';
+            currentStep++;
+            setTimeout(() => askQuestion(), 350);
+        }
+
+        inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') handleSend(); });
+
+        // ============ SUMMARY STEP ============
+        function showSummary() {
+            inputArea.classList.add('hidden');
+            const n = parseInt(answers.num_songs);
+            const total = RATE_PER_SONG * n;
+            const deposit = n > 1 ? Math.floor(total / 2) : total;
+            const today = new Date().toISOString().split('T')[0];
+
+            computedData = { numSongs: n, total, deposit, today,
+                invoiceNum: `TAP-${today.replace(/-/g,'')}-${answers.client_name.split(' ')[0].toUpperCase()}`,
+                startDateFmt: formatDate(answers.start_date),
+                endDateFmt: formatDate(addWeeks(answers.start_date, 4 * n)),
+                dateFmt: formatDate(today),
+                dueDateFmt: formatDate(addDays(today, 3)),
+            };
+
+            setProgress(75, 'Review your details');
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                const notesDisplay = (answers.notes && answers.notes.toLowerCase() !== 'none') ? answers.notes : '\u2014';
+                addMessage("Here's a summary of everything. Make sure it looks right:");
+
+                addBotWidget(`
+                    <div class="summary-card">
+                        <div class="row"><span class="label">Name</span><span class="value">${answers.client_name}</span></div>
+                        <div class="row"><span class="label">Email</span><span class="value">${answers.client_email}</span></div>
+                        <div class="row"><span class="label">Project</span><span class="value">${answers.project_name}</span></div>
+                        <div class="row"><span class="label">Songs</span><span class="value">${n}</span></div>
+                        <div class="row"><span class="label">Start Date</span><span class="value">${computedData.startDateFmt}</span></div>
+                        <div class="row"><span class="label">Notes</span><span class="value">${notesDisplay}</span></div>
+                        <div class="row total"><span class="label">Amount Due</span><span class="value">$${deposit.toLocaleString()}</span></div>
+                    </div>
+                    <div style="margin-top:12px; text-align:center;">
+                        <button class="action-btn primary" onclick="confirmSummary()">Looks Good</button>
+                        <button class="action-btn secondary" onclick="restartQuestions()">Edit Answers</button>
+                    </div>
+                `);
+            }, 600);
+        }
+
+        function restartQuestions() {
+            disableActionBtns();
+            addMessage("No problem \u2014 let's start over.", 'bot');
+            currentStep = 0; answers = {}; phase = 'questions';
+            inputArea.classList.remove('hidden');
+            setTimeout(() => askQuestion(), 400);
+        }
+
+        function confirmSummary() {
+            disableActionBtns();
+            addMessage("Looks good!", 'user');
+            phase = 'review';
+            setTimeout(() => showContractReview(), 400);
+        }
+
+        // ============ CONTRACT REVIEW + SIGN ============
+        function getContractSections() {
+            const d = computedData;
+            return [
+                { title: "Parties", text: `This Agreement is between Travis Graham, d/b/a Travis Atreo Productions ("Producer") and ${answers.client_name} ("Client").` },
+                { title: "Scope of Work", text: `Producer will provide music production services for "${answers.project_name}" \u2014 ${d.numSongs} song(s). Includes beat production, arrangement, vocal production, mixing, and mastering.` },
+                { title: "Timeline", text: `Production starts ${d.startDateFmt}, estimated completion ${d.endDateFmt}. Client delays may extend timeline.` },
+                { title: "Compensation", text: `Total: $${d.total.toLocaleString()}. ${d.numSongs > 1 ? `Deposit of $${d.deposit.toLocaleString()} due now; balance due on delivery.` : `$${d.deposit.toLocaleString()} due upon signing via Zelle.`} Late payments: 5% weekly fee. Production pauses after 7 days past due.` },
+                { title: "Revisions", text: `2 rounds of revisions per song included. Additional revisions billed at $150/hr.` },
+                { title: "Ownership & Rights", text: `Client receives exclusive rights to final recordings upon full payment. Producer retains portfolio/promo rights. Credit: "Produced by Travis Atreo" on all releases.` },
+                { title: "Cancellation", text: `Either party can cancel with 7 days notice. Client cancels after start: deposit non-refundable. Producer cancels: pro-rated refund.` },
+                { title: "Confidentiality", text: `Both parties keep project details and unreleased music confidential until Client authorizes release.` },
+            ];
+        }
+
+        function showContractReview() {
+            setProgress(82, 'Review & Sign');
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addMessage("Here's your Music Production Agreement. Tap to expand and read the full terms, then you can sign right here or save it for later.");
+
+                const sections = getContractSections();
+                const sectionsHTML = sections.map(s =>
+                    `<div class="section-title">${s.title}</div><div>${s.text}</div>`
+                ).join('');
+
+                addBotWidget(`
+                    <div class="contract-card">
+                        <div class="cc-header" onclick="toggleContract(this)">
+                            <span>Music Production Agreement</span>
+                            <span class="arrow">\u25BC</span>
+                        </div>
+                        <div class="cc-body" id="contractBody">
+                            <div class="cc-body-inner">${sectionsHTML}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:14px; text-align:center;">
+                        <button class="action-btn gold" onclick="startSigning()">Sign Now</button>
+                        <button class="action-btn secondary" onclick="signLater()">Sign Later</button>
+                    </div>
+                `);
+            }, 600);
+        }
+
+        function toggleContract(el) {
+            el.classList.toggle('open');
+            document.getElementById('contractBody').classList.toggle('open');
+        }
+
+        function signLater() {
+            disableActionBtns();
+            addMessage("I'll review it later", 'user');
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addMessage("No worries! The contract will be in your downloads \u2014 unsigned. When you're ready, just send it back signed or let Travis know and we'll get it sorted.");
+                setTimeout(() => generateDocs(false), 500);
+            }, 500);
+        }
+
+        function startSigning() {
+            disableActionBtns();
+            addMessage("Let's do it!", 'user');
+            phase = 'sign';
+            setProgress(90, 'Sign your agreement');
+
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addBotWidget(`
+                    <div class="bubble" style="background:#1e1e3a; border:1px solid #2d2d4a; border-radius:16px; border-bottom-left-radius:4px; padding:14px;">
+                        <div style="margin-bottom:10px; font-size:14px;">Sign below to accept the agreement:</div>
+                        <div class="sig-area">
+                            <div class="sig-tabs">
+                                <div class="sig-tab active" onclick="switchSigTab('type', this)">Type</div>
+                                <div class="sig-tab" onclick="switchSigTab('draw', this)">Draw</div>
+                            </div>
+                            <div id="sigTypeArea" class="sig-type-area">
+                                <input type="text" id="sigTypeInput" placeholder="Type your full name" oninput="onSigType(this)">
+                            </div>
+                            <div id="sigDrawArea" class="sig-draw-area" style="display:none;">
+                                <canvas id="sigCanvas"></canvas>
+                                <div class="sig-placeholder" id="sigPlaceholder">Draw your signature</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <button class="sig-clear" onclick="clearSig()">Clear</button>
+                            </div>
+                        </div>
+                        <div class="esig-note">
+                            By signing, you agree to the terms of the Music Production Agreement above. This electronic signature is legally binding under the ESIGN Act and UETA.
+                        </div>
+                        <div style="margin-top:12px; text-align:center;">
+                            <button class="action-btn gold" id="confirmSignBtn" onclick="confirmSignature()" disabled>Confirm Signature</button>
+                        </div>
+                    </div>
+                `);
+                initSigCanvas();
+            }, 500);
+        }
+
+        // ============ SIGNATURE PAD ============
+        let sigCanvas, sigCtx, isDrawing = false, hasDrawn = false;
+
+        function initSigCanvas() {
+            sigCanvas = document.getElementById('sigCanvas');
+            sigCtx = sigCanvas.getContext('2d');
+            const rect = sigCanvas.parentElement.getBoundingClientRect();
+            sigCanvas.width = rect.width;
+            sigCanvas.height = rect.height;
+            sigCtx.strokeStyle = '#1a1a2e';
+            sigCtx.lineWidth = 2.5;
+            sigCtx.lineCap = 'round';
+            sigCtx.lineJoin = 'round';
+
+            // Mouse
+            sigCanvas.addEventListener('mousedown', sigStart);
+            sigCanvas.addEventListener('mousemove', sigMove);
+            sigCanvas.addEventListener('mouseup', sigEnd);
+            sigCanvas.addEventListener('mouseleave', sigEnd);
+            // Touch
+            sigCanvas.addEventListener('touchstart', e => { e.preventDefault(); sigStart(e.touches[0]); }, { passive: false });
+            sigCanvas.addEventListener('touchmove', e => { e.preventDefault(); sigMove(e.touches[0]); }, { passive: false });
+            sigCanvas.addEventListener('touchend', sigEnd);
+        }
+
+        function sigStart(e) {
+            isDrawing = true; hasDrawn = true;
+            document.getElementById('sigPlaceholder').style.display = 'none';
+            const r = sigCanvas.getBoundingClientRect();
+            sigCtx.beginPath();
+            sigCtx.moveTo(e.clientX - r.left, e.clientY - r.top);
+        }
+        function sigMove(e) {
+            if (!isDrawing) return;
+            const r = sigCanvas.getBoundingClientRect();
+            sigCtx.lineTo(e.clientX - r.left, e.clientY - r.top);
+            sigCtx.stroke();
+            updateSignBtn();
+        }
+        function sigEnd() { isDrawing = false; updateSignBtn(); }
+
+        function switchSigTab(type, el) {
+            signatureType = type;
+            document.querySelectorAll('.sig-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('sigTypeArea').style.display = type === 'type' ? 'block' : 'none';
+            document.getElementById('sigDrawArea').style.display = type === 'draw' ? 'block' : 'none';
+            if (type === 'draw' && sigCanvas) {
+                const rect = sigCanvas.parentElement.getBoundingClientRect();
+                sigCanvas.width = rect.width;
+                sigCanvas.height = rect.height;
+                sigCtx.strokeStyle = '#1a1a2e';
+                sigCtx.lineWidth = 2.5;
+                sigCtx.lineCap = 'round';
+            }
+            updateSignBtn();
+        }
+
+        function onSigType(el) { updateSignBtn(); }
+
+        function clearSig() {
+            if (signatureType === 'draw' && sigCanvas) {
+                sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+                hasDrawn = false;
+                document.getElementById('sigPlaceholder').style.display = 'block';
+            } else {
+                document.getElementById('sigTypeInput').value = '';
+            }
+            updateSignBtn();
+        }
+
+        function updateSignBtn() {
+            const btn = document.getElementById('confirmSignBtn');
+            if (!btn) return;
+            if (signatureType === 'type') {
+                btn.disabled = !document.getElementById('sigTypeInput')?.value.trim();
+            } else {
+                btn.disabled = !hasDrawn;
+            }
+        }
+
+        function confirmSignature() {
+            if (signatureType === 'type') {
+                signatureData = { type: 'typed', value: document.getElementById('sigTypeInput').value.trim() };
+            } else {
+                signatureData = { type: 'drawn', value: sigCanvas.toDataURL('image/png') };
+            }
+            disableActionBtns();
+            const display = signatureData.type === 'typed' ? signatureData.value : '[Signature drawn]';
+            addMessage(`Signed: ${display}`, 'user');
+
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addMessage(`Agreement signed! Generating your documents now...`);
+                setTimeout(() => generateDocs(true), 600);
+            }, 500);
+        }
+
+        // ============ PDF: INVOICE ============
+        function generateInvoicePDF(data) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+            const w = 612, h = 792;
+
+            doc.setFillColor(26, 26, 46); doc.rect(0, 0, w, h, 'F');
+            doc.setFillColor(108, 92, 231); doc.rect(0, 0, w, 130, 'F');
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(32); doc.setFont('helvetica', 'bold');
+            doc.text("INVOICE", w - 40, 50, { align: 'right' });
+            doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+            doc.setTextColor(224, 212, 255);
+            doc.text(`#${data.invoice_number}`, w - 40, 68, { align: 'right' });
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22); doc.setFont('helvetica', 'bold');
+            doc.text("TRAVIS ATREO", 40, 48);
+            doc.text("PRODUCTIONS", 40, 72);
+            doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+            doc.text("Music Production  \u2022  Mixing  \u2022  Mastering", 40, 92);
+            doc.setTextColor(224, 212, 255);
+            doc.text("travis@travisatreo.com", 40, 107);
+
+            let y = 165;
+            doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+            doc.text("BILL TO", 40, y);
+            doc.setTextColor(245, 245, 245); doc.setFontSize(13);
+            doc.text(data.client_name, 40, y + 22);
+            doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+            doc.setTextColor(176, 176, 176);
+            doc.text(data.client_email, 40, y + 40);
+
+            doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+            doc.text("INVOICE DATE", w - 40, y, { align: 'right' });
+            doc.setTextColor(245, 245, 245); doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+            doc.text(data.date, w - 40, y + 18, { align: 'right' });
+            doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+            doc.text("DUE DATE", w - 40, y + 42, { align: 'right' });
+            doc.setTextColor(246, 201, 14); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+            doc.text(data.due_date, w - 40, y + 58, { align: 'right' });
+
+            let ty = y + 100;
+            doc.setFillColor(45, 45, 74); doc.rect(30, ty - 5, w - 60, 28, 'F');
+            doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+            doc.text("DESCRIPTION", 45, ty + 12);
+            doc.text("QTY", 340, ty + 12);
+            doc.text("RATE", 400, ty + 12);
+            doc.text("AMOUNT", w - 45, ty + 12, { align: 'right' });
+
+            let ry = ty + 45;
+            doc.setTextColor(245, 245, 245); doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+            doc.text(`Music Production \u2014 ${data.project_name}`, 45, ry);
+            doc.text(String(data.num_songs), 345, ry);
+            doc.text(`$${data.rate_per_song.toLocaleString()}`, 400, ry);
+            doc.text(`$${data.total.toLocaleString()}`, w - 45, ry, { align: 'right' });
+
+            doc.setDrawColor(61, 61, 92); doc.setLineWidth(0.5);
+            doc.line(340, ry + 15, w - 40, ry + 15);
+            doc.setTextColor(176, 176, 176); doc.setFontSize(10);
+            doc.text("SUBTOTAL", 340, ry + 35);
+            doc.setTextColor(245, 245, 245);
+            doc.text(`$${data.total.toLocaleString()}`, w - 45, ry + 35, { align: 'right' });
+
+            doc.setFillColor(108, 92, 231); doc.rect(330, ry + 48, w - 370, 28, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+            doc.text("AMOUNT DUE", 345, ry + 66);
+            doc.text(`$${data.deposit.toLocaleString()}`, w - 45, ry + 66, { align: 'right' });
+
+            if (data.notes && data.notes.toLowerCase() !== 'none') {
+                doc.setTextColor(162, 155, 254); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+                doc.text("NOTES", 40, ry + 105);
+                doc.setTextColor(176, 176, 176); doc.setFont('helvetica', 'normal');
+                doc.text(data.notes, 40, ry + 123);
+            }
+
+            let py = 530;
+            doc.setFillColor(45, 45, 74); doc.roundedRect(30, py, w - 60, 200, 10, 10, 'F');
+            doc.setTextColor(246, 201, 14); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+            doc.text("PAY WITH ZELLE", 55, py + 30);
+            doc.setTextColor(245, 245, 245); doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+            doc.text("Scan the QR code to send payment instantly.", 55, py + 50);
+            doc.text("Send to: TRAVIS GRAHAM", 55, py + 68);
+            doc.setTextColor(176, 176, 176); doc.setFontSize(10);
+            doc.text(`Amount Due: $${data.deposit.toLocaleString()}`, 55, py + 92);
+            doc.text(`Reference: ${data.invoice_number}`, 55, py + 110);
+
+            const qrX = w - 195, qrY = py + 20;
+            doc.setFillColor(255, 255, 255); doc.roundedRect(qrX - 10, qrY - 5, 145, 155, 5, 5, 'F');
+            doc.addImage(QR_DATA_URL, 'PNG', qrX, qrY, 125, 125);
+            doc.setTextColor(176, 176, 176); doc.setFontSize(8);
+            doc.text("TRAVIS GRAHAM \u2014 Zelle", qrX + 62, qrY + 142, { align: 'center' });
+
+            doc.setTextColor(176, 176, 176); doc.setFontSize(9);
+            doc.text("Travis Atreo Productions  \u2022  travis@travisatreo.com", w / 2, h - 35, { align: 'center' });
+            doc.text("Thank you for your business!", w / 2, h - 20, { align: 'center' });
+            return doc;
+        }
+
+        // ============ PDF: CONTRACT ============
+        function generateContractPDF(data, signed) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+            const w = 612, h = 792, m = 40, tw = w - m * 2;
+            let y = 140;
+
+            doc.setFillColor(26, 26, 46); doc.rect(0, 0, w, h, 'F');
+            doc.setFillColor(108, 92, 231); doc.rect(0, 0, w, 100, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24); doc.setFont('helvetica', 'bold');
+            doc.text("MUSIC PRODUCTION AGREEMENT", 40, 50);
+            doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+            doc.text("Travis Atreo Productions", 40, 75);
+            doc.setFontSize(10);
+            doc.text(`Date: ${data.date_signed}`, w - 40, 50, { align: 'right' });
+
+            function secHead(t) {
+                if (y > h - 100) { doc.addPage(); doc.setFillColor(26,26,46); doc.rect(0,0,w,h,'F'); y = 50; }
+                doc.setTextColor(246,201,14); doc.setFontSize(12); doc.setFont('helvetica','bold');
+                doc.text(t, m, y); y += 4;
+                doc.setDrawColor(108,92,231); doc.setLineWidth(1); doc.line(m, y, w-m, y); y += 18;
+            }
+            function body(t) {
+                doc.setTextColor(245,245,245); doc.setFontSize(10); doc.setFont('helvetica','normal');
+                const lines = doc.splitTextToSize(t, tw);
+                for (const l of lines) {
+                    if (y > h - 50) { doc.addPage(); doc.setFillColor(26,26,46); doc.rect(0,0,w,h,'F'); y = 50; }
+                    doc.text(l, m, y); y += 14;
+                }
+                y += 8;
+            }
+
+            secHead("PARTIES");
+            body(`This Music Production Agreement ("Agreement") is entered into as of ${data.date_signed}, by and between:`);
+            body(`PRODUCER: Travis Graham, d/b/a Travis Atreo Productions ("Producer"), contact: travis@travisatreo.com`);
+            body(`CLIENT: ${data.client_name} ("Client"), contact: ${data.client_email}`);
+
+            secHead("1. SCOPE OF WORK");
+            body(`Producer agrees to provide music production services for "${data.project_name}" consisting of ${data.num_songs} song(s). Services include beat production, arrangement, vocal production, mixing, and mastering.`);
+
+            secHead("2. TIMELINE");
+            body(`Production commences ${data.start_date}, estimated completion ${data.end_date}. Timeline adjustable by mutual written agreement. Client delays may extend timeline.`);
+
+            secHead("3. COMPENSATION");
+            body(`Total fee: $${data.total.toLocaleString()}. Payment of $${data.deposit.toLocaleString()} due upon signing via Zelle to Travis Graham.`);
+            if (data.num_songs > 1) body(`Remaining $${(data.total - data.deposit).toLocaleString()} due upon delivery of final masters.`);
+            body(`Late payments: 5% weekly fee. Production pauses on balances exceeding 7 days past due.`);
+
+            secHead("4. REVISIONS");
+            body(`Two (2) revision rounds per song included. Additional revisions: $150/hour. A "revision" = changes submitted together within a 48-hour window.`);
+
+            secHead("5. OWNERSHIP & RIGHTS");
+            body(`Upon full payment, Client receives exclusive rights to final recordings for commercial release. Producer retains portfolio/promo rights. Credit ("Produced by Travis Atreo") required on all public releases.`);
+
+            secHead("6. CANCELLATION");
+            body(`Either party may cancel with 7 days written notice. Client cancels post-start: deposit non-refundable. Producer cancels: pro-rated refund for uncompleted work.`);
+
+            secHead("7. CONFIDENTIALITY");
+            body(`Both parties keep project details and unreleased music confidential until Client authorizes release.`);
+
+            // Signatures
+            if (y > h - 200) { doc.addPage(); doc.setFillColor(26,26,46); doc.rect(0,0,w,h,'F'); y = 50; }
+            y += 10;
+            secHead("SIGNATURES");
+            y += 10;
+
+            doc.setTextColor(176,176,176); doc.setFontSize(10); doc.setFont('helvetica','normal');
+            doc.text("PRODUCER", m, y);
+            doc.text("CLIENT", 320, y);
+            y += 40;
+
+            doc.setDrawColor(176,176,176); doc.setLineWidth(0.5);
+            doc.line(m, y, 260, y);
+            doc.line(320, y, w - m, y);
+
+            // Client signature
+            if (signed && signatureData) {
+                if (signatureData.type === 'typed') {
+                    doc.setFont('helvetica', 'italic');
+                    doc.setTextColor(162, 155, 254);
+                    doc.setFontSize(18);
+                    doc.text(signatureData.value, 320, y - 8);
+                } else if (signatureData.type === 'drawn') {
+                    try { doc.addImage(signatureData.value, 'PNG', 320, y - 38, 160, 35); } catch(e) {}
+                }
+            }
+
+            y += 15;
+            doc.setTextColor(245,245,245); doc.setFontSize(10); doc.setFont('helvetica','normal');
+            doc.text("Travis Graham / Travis Atreo Productions", m, y);
+            doc.text(data.client_name, 320, y);
+            y += 16;
+            doc.setTextColor(176,176,176);
+            doc.text(`Date: ${data.date_signed}`, m, y);
+            doc.text(signed ? `Date: ${data.date_signed}` : "Date: _______________", 320, y);
+
+            if (signed) {
+                y += 24;
+                doc.setFontSize(8); doc.setTextColor(130, 130, 160);
+                doc.text(`Electronically signed by ${data.client_name} on ${data.date_signed}`, m, y);
+                doc.text(`Signature ID: ${computedData.invoiceNum}-SIG`, m, y + 12);
+            }
+
+            doc.setTextColor(176,176,176); doc.setFontSize(8);
+            doc.text("Travis Atreo Productions  \u2022  Music Production Agreement  \u2022  Confidential", w/2, h - 20, { align: 'center' });
+            return doc;
+        }
+
+        // ============ GENERATE & DELIVER ============
+        async function generateDocs(signed) {
+            phase = 'done';
+            setProgress(95, 'Generating documents...');
+            showTyping();
+            await new Promise(r => setTimeout(r, 1000));
+            hideTyping();
+
+            const d = computedData;
+            const invoiceData = {
+                invoice_number: d.invoiceNum, date: d.dateFmt, due_date: d.dueDateFmt,
+                client_name: answers.client_name, client_email: answers.client_email,
+                project_name: answers.project_name, num_songs: d.numSongs,
+                rate_per_song: RATE_PER_SONG, total: d.total, deposit: d.deposit,
+                notes: answers.notes,
+            };
+            const contractData = {
+                client_name: answers.client_name, client_email: answers.client_email,
+                project_name: answers.project_name, num_songs: d.numSongs,
+                start_date: d.startDateFmt, end_date: d.endDateFmt,
+                total: d.total, deposit: d.deposit, date_signed: d.dateFmt,
+            };
+
+            const invPDF = generateInvoicePDF(invoiceData);
+            const conPDF = generateContractPDF(contractData, signed);
+            const invURL = URL.createObjectURL(invPDF.output('blob'));
+            const conURL = URL.createObjectURL(conPDF.output('blob'));
+            const safeName = answers.client_name.replace(/\s/g, '_');
+
+            const signedLabel = signed ? ' (Signed)' : '';
+
+            addMessage(
+                `Done! Your invoice and ${signed ? 'signed ' : ''}contract are ready. ` +
+                `Total: <strong>$${d.total.toLocaleString()}</strong> \u2014 ` +
+                `Due now: <strong>$${d.deposit.toLocaleString()}</strong>`
+            );
+
+            const results = document.getElementById('results');
+            results.classList.add('active');
+            results.innerHTML = `
+                <h2>You're All Set</h2>
+                <p>Download your documents, then scan the QR code to send payment.</p>
+                <a href="${invURL}" download="Invoice_${safeName}.pdf" class="download-btn">Invoice</a>
+                <a href="${conURL}" download="Contract${signed ? '_Signed' : ''}_${safeName}.pdf" class="download-btn secondary">Contract${signedLabel}</a>
+                <div class="qr-section">
+                    <p style="color: #888; font-size: 12px; margin-bottom: 10px;">SCAN TO PAY WITH ZELLE</p>
+                    <img src="${QR_DATA_URL}" alt="Zelle QR Code">
+                    <div class="name">TRAVIS GRAHAM</div>
+                    <div class="amount">$${d.deposit.toLocaleString()}</div>
+                    <p style="color: #555; font-size: 11px; margin-top: 6px;">Ref: ${d.invoiceNum}</p>
+                </div>
+            `;
+
+            setProgress(100, signed ? 'Signed & Complete \u2713' : 'Complete \u2713');
+        }
+
+        // ============ START ============
+        setTimeout(() => askQuestion(), 500);
+    </script>
+</body>
+</html>
