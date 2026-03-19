@@ -350,11 +350,31 @@
         };
         let pendingEmailSuggestion = null;
 
+        // Common TLD typos
+        const TLD_CORRECTIONS = {
+            'con': 'com', 'cmo': 'com', 'cm': 'com', 'co': 'com',
+            'om': 'com', 'vom': 'com', 'cim': 'com', 'xom': 'com',
+            'comm': 'com', 'coim': 'com',
+            'ner': 'net', 'nte': 'net', 'net.': 'net',
+            'ogr': 'org', 'orgg': 'org', 'og': 'org',
+        };
+
         function checkEmailTypo(email) {
             const domain = email.split('@')[1]?.toLowerCase();
             if (!domain) return null;
+            // Check known full-domain typos first
             if (EMAIL_DOMAIN_CORRECTIONS[domain]) {
                 return email.replace(/@.*$/, '@' + EMAIL_DOMAIN_CORRECTIONS[domain]);
+            }
+            // Check generic TLD typos (catches any domain ending in .con, .cmo, etc.)
+            const lastDot = domain.lastIndexOf('.');
+            if (lastDot > 0) {
+                const tld = domain.substring(lastDot + 1);
+                const baseDomain = domain.substring(0, lastDot);
+                if (TLD_CORRECTIONS[tld]) {
+                    const corrected = baseDomain + '.' + TLD_CORRECTIONS[tld];
+                    return email.replace(/@.*$/, '@' + corrected);
+                }
             }
             return null;
         }
