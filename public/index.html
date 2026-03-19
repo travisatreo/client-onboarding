@@ -328,6 +328,37 @@
         const STANDARD_RATE = 1500;
         let ratePerSong = STANDARD_RATE;
 
+        // ============ EMAIL TYPO DETECTION ============
+        const EMAIL_DOMAIN_CORRECTIONS = {
+            'gmal.com': 'gmail.com', 'gmial.com': 'gmail.com', 'gmaill.com': 'gmail.com',
+            'gamil.com': 'gmail.com', 'gmali.com': 'gmail.com', 'gmaul.com': 'gmail.com',
+            'gnail.com': 'gmail.com', 'gmil.com': 'gmail.com', 'gimail.com': 'gmail.com',
+            'gmiall.com': 'gmail.com', 'gmaiil.com': 'gmail.com', 'gmsil.com': 'gmail.com',
+            'gmail.co': 'gmail.com', 'gmail.cm': 'gmail.com', 'gmail.con': 'gmail.com',
+            'gmail.om': 'gmail.com', 'gmail.cmo': 'gmail.com', 'gmail.vom': 'gmail.com',
+            'gmai.com': 'gmail.com', 'gmailcom': 'gmail.com',
+            'yaho.com': 'yahoo.com', 'yahooo.com': 'yahoo.com', 'yhaoo.com': 'yahoo.com',
+            'yahoo.co': 'yahoo.com', 'yahoo.con': 'yahoo.com', 'yhoo.com': 'yahoo.com',
+            'yaoo.com': 'yahoo.com',
+            'hotmal.com': 'hotmail.com', 'hotmai.com': 'hotmail.com', 'hotmial.com': 'hotmail.com',
+            'hotmail.co': 'hotmail.com', 'hotmail.con': 'hotmail.com', 'hotamil.com': 'hotmail.com',
+            'outlok.com': 'outlook.com', 'outloo.com': 'outlook.com', 'outlool.com': 'outlook.com',
+            'outlook.co': 'outlook.com', 'outlook.con': 'outlook.com',
+            'icloud.co': 'icloud.com', 'icloud.con': 'icloud.com', 'iclould.com': 'icloud.com',
+            'icoud.com': 'icloud.com', 'iclud.com': 'icloud.com',
+            'aol.co': 'aol.com', 'aol.con': 'aol.com',
+        };
+        let pendingEmailSuggestion = null;
+
+        function checkEmailTypo(email) {
+            const domain = email.split('@')[1]?.toLowerCase();
+            if (!domain) return null;
+            if (EMAIL_DOMAIN_CORRECTIONS[domain]) {
+                return email.replace(/@.*$/, '@' + EMAIL_DOMAIN_CORRECTIONS[domain]);
+            }
+            return null;
+        }
+
         // ============ STATE ============
         let currentStep = 0;
         let answers = {};
@@ -507,7 +538,40 @@
         function quickReply(v) { disableQuickReplies(); inputEl.value = v; handleSend(); }
 
         function handleSend() {
+            if (phase === 'email_confirm') { handleEmailConfirm(); return; }
             if (phase === 'questions') sendAnswer();
+        }
+
+        function handleEmailConfirm() {
+            const value = inputEl.value.trim();
+            if (!value) return;
+            addMessage(value, 'user');
+            inputEl.value = '';
+            // They typed a corrected email manually
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                answers.client_email = value;
+            }
+            phase = 'questions';
+            currentStep++;
+            setTimeout(() => askQuestion(), 350);
+        }
+
+        function acceptEmailSuggestion(corrected) {
+            disableQuickReplies();
+            addMessage(corrected, 'user');
+            answers.client_email = corrected;
+            pendingEmailSuggestion = null;
+            phase = 'questions';
+            currentStep++;
+            setTimeout(() => askQuestion(), 350);
+        }
+
+        function keepOriginalEmail() {
+            disableQuickReplies();
+            addMessage("Keep what I typed", 'user');
+            phase = 'questions';
+            currentStep++;
+            setTimeout(() => askQuestion(), 350);
         }
 
         function sendAnswer() {
@@ -521,6 +585,32 @@
                 setTimeout(() => addMessage(q.error, 'bot'), 300);
                 inputEl.value = ''; return;
             }
+
+            // Email typo check
+            if (q.key === 'client_email') {
+                const suggestion = checkEmailTypo(value);
+                if (suggestion) {
+                    answers[q.key] = value;
+                    addMessage(value, 'user');
+                    inputEl.value = '';
+                    pendingEmailSuggestion = suggestion;
+                    phase = 'email_confirm';
+                    setTimeout(() => {
+                        showTyping();
+                        setTimeout(() => {
+                            hideTyping();
+                            const extra = `<div class="quick-replies">
+                                <button class="quick-reply" onclick="acceptEmailSuggestion('${suggestion}')">Yes, use ${suggestion}</button>
+                                <button class="quick-reply" onclick="keepOriginalEmail()">No, keep what I typed</button>
+                            </div>`;
+                            addMessage(`Did you mean <strong>${suggestion}</strong>?`, 'bot', extra);
+                            inputEl.placeholder = "Or type the correct email...";
+                        }, 400);
+                    }, 300);
+                    return;
+                }
+            }
+
             answers[q.key] = q.transform ? q.transform(value) : value;
             addMessage(value, 'user');
             inputEl.value = '';
