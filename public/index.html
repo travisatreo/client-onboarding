@@ -1276,6 +1276,30 @@
             `;
 
             setProgress(100, signed ? 'Signed & Complete \u2713' : 'Complete \u2713');
+
+            // Notify Travis via email (fire and forget)
+            notifyProducer(signed);
+        }
+
+        function notifyProducer(signed) {
+            const d = computedData;
+            fetch('/api/notify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    client_name: answers.client_name,
+                    client_email: answers.client_email,
+                    project_name: answers.project_name,
+                    num_songs: d.numSongs,
+                    rate_per_song: d.ratePerSong,
+                    total: d.total,
+                    deposit: d.deposit,
+                    start_date: d.startDateFmt,
+                    notes: answers.notes,
+                    signed: signed,
+                    invoice_number: d.invoiceNum,
+                }),
+            }).catch(() => {}); // Silent fail — don't break the client experience
         }
 
         // ============ START ============
