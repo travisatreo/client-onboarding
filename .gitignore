@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+invoices/
+contracts/
+data/
+.env
+.vercel
+node_modules/
+.producers/

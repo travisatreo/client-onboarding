@@ -235,6 +235,16 @@
             transition: border-color 0.2s;
         }
         .notes-input:focus { border-color: var(--gold); }
+        .drive-input {
+            background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 6px;
+            padding: 8px 10px; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif;
+            outline: none; width: 300px; max-width: 100%; transition: border-color 0.2s;
+        }
+        .drive-input:focus { border-color: var(--gold); }
+        .drive-link {
+            color: var(--purple-light); font-size: 12px; text-decoration: none; font-weight: 500;
+        }
+        .drive-link:hover { text-decoration: underline; }
 
         /* Loading & Empty */
         .loading-spinner {
@@ -397,6 +407,29 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ── Producer Config ────────────────────────────
+let PRODUCER_CONFIG = null;
+async function loadConfig() {
+    try {
+        const resp = await fetch('/api/config');
+        if (resp.ok) {
+            PRODUCER_CONFIG = await resp.json();
+            // Update branding
+            document.querySelectorAll('.brand').forEach(el => el.textContent = PRODUCER_CONFIG.producer_name);
+            document.title = `${PRODUCER_CONFIG.producer_name} — Operations Dashboard`;
+            // Update CSS variables for colors
+            if (PRODUCER_CONFIG.accent_color) {
+                document.documentElement.style.setProperty('--gold', PRODUCER_CONFIG.accent_color);
+                document.documentElement.style.setProperty('--gold-light', PRODUCER_CONFIG.accent_light);
+                document.documentElement.style.setProperty('--purple', PRODUCER_CONFIG.secondary_color);
+                document.documentElement.style.setProperty('--purple-light', PRODUCER_CONFIG.secondary_light);
+                document.documentElement.style.setProperty('--card-border', PRODUCER_CONFIG.accent_color + '1f');
+            }
+        }
+    } catch(e) {}
+}
+loadConfig();
+
 // ── State ──────────────────────────────────────
 let allClients = [];
 let sortField = 'created_at';
@@ -608,9 +641,33 @@ function renderTable() {
                             <div class="label">Signed</div>
                             <div class="value">${c.signed ? 'Yes' + (c.signed_at ? ' — ' + new Date(c.signed_at).toLocaleDateString() : '') : 'No'}</div>
                         </div>
+                        <div class="expand-field">
+                            <div class="label">Phone</div>
+                            <div class="value">${esc(c.phone || 'Not provided')}</div>
+                        </div>
+                        <div class="expand-field">
+                            <div class="label">Birthday</div>
+                            <div class="value">${esc(c.birthday || 'Not provided')}</div>
+                        </div>
+                        <div class="expand-field" style="min-width:200px;" onclick="event.stopPropagation()">
+                            <div class="label">Drive Folder</div>
+                            ${c.drive_folder_url
+                                ? `<a href="${esc(c.drive_folder_url)}" target="_blank" rel="noopener" class="drive-link">${esc(c.drive_folder_url.length > 40 ? c.drive_folder_url.slice(0, 40) + '...' : c.drive_folder_url)}</a><br>`
+                                : ''}
+                            <input class="drive-input" id="drive-${c.id}" type="url" placeholder="Paste Google Drive link..." value="${esc(c.drive_folder_url || '')}" onblur="saveDriveFolder('${c.id}')">
+                        </div>
                         <div class="expand-field" style="flex:1; min-width:200px;">
                             <div class="label">Notes</div>
                             <textarea class="notes-input" id="notes-${c.id}" onclick="event.stopPropagation()" onblur="saveNotes('${c.id}')">${esc(c.notes || '')}</textarea>
+                        </div>
+                        <div class="expand-field" style="margin-left:auto; align-self:flex-end; display:flex; gap:8px; flex-wrap:wrap;" onclick="event.stopPropagation()">
+                            ${c.phone ? `
+                                <button class="btn" onclick="sendSMS('${c.id}', 'deposit_received')" title="Notify client deposit received">💰 Deposit Confirmed</button>
+                                <button class="btn" onclick="sendSMS('${c.id}', 'files_ready')" title="Notify client files are ready">🎧 Files Ready</button>
+                            ` : ''}
+                            ${c.drive_folder_url ? '' : c.phone ? '' : ''}
+                            <button class="btn" onclick="createDriveFolder('${c.id}', '${esc(c.client_name)}', '${esc(c.project_name)}')" title="Auto-create Google Drive folder">📁 Create Drive Folder</button>
+                            <button class="btn btn-danger" onclick="deleteClient('${c.id}', '${esc(c.client_name)}')">🗑 Delete Project</button>
                         </div>
                     </div>
                 </td>
@@ -697,18 +754,48 @@ function saveNotes(id) {
     }
 }
 
+function saveDriveFolder(id) {
+    const el = document.getElementById('drive-' + id);
+    if (!el) return;
+    const client = allClients.find(c => c.id === id);
+    if (client && el.value !== (client.drive_folder_url || '')) {
+        patchClient(id, { drive_folder_url: el.value || null });
+    }
+}
+
+// ── Delete Client ──────────────────────────────
+async function deleteClient(id, name) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    try {
+        const res = await fetch('/api/clients', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getPassword()}` },
+            body: JSON.stringify({ id }),
+        });
+        if (!res.ok) throw new Error('Delete failed');
+        allClients = allClients.filter(c => c.id !== id);
+        expandedId = null;
+        renderTable();
+        updateStats(sortClients(getFilteredClients()));
+        showToast(`"${name}" deleted`);
+    } catch (err) {
+        showToast('Failed to delete — try again', true);
+    }
+}
+
 // ── CSV Export ─────────────────────────────────
 function exportCSV() {
     const filtered = sortClients(getFilteredClients());
     if (filtered.length === 0) { showToast('No data to export', true); return; }
 
-    const headers = ['Date', 'Client Name', 'Email', 'Project', 'Songs', 'Rate per Song', 'Total', 'Deposit', 'Status', 'Deposit Paid', 'Final Paid', 'Invoice #', 'Start Date', 'Signed', 'Notes'];
+    const headers = ['Date', 'Client Name', 'Email', 'Phone', 'Birthday', 'Project', 'Songs', 'Rate per Song', 'Total', 'Deposit', 'Status', 'Deposit Paid', 'Final Paid', 'Invoice #', 'Start Date', 'Signed', 'Drive Folder', 'Notes'];
     const rows = filtered.map(c => [
         c.created_at ? new Date(c.created_at).toLocaleDateString() : '',
-        c.client_name || '', c.client_email || '', c.project_name || '',
+        c.client_name || '', c.client_email || '', c.phone || '', c.birthday || '', c.project_name || '',
         c.num_songs || '', c.rate_per_song || '', c.total || '', c.deposit || '',
         c.status || 'onboarding', c.deposit_paid ? 'Yes' : 'No', c.final_paid ? 'Yes' : 'No',
         c.invoice_number || '', c.start_date || '', c.signed ? 'Yes' : 'No',
+        c.drive_folder_url || '',
         (c.notes || '').replace(/"/g, '""')
     ]);
 
@@ -716,7 +803,8 @@ function exportCSV() {
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `travis-atreo-clients-${new Date().toISOString().slice(0,10)}.csv`;
+    const slug = PRODUCER_CONFIG?.producer_slug || 'producer';
+    a.href = url; a.download = `${slug}-clients-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     showToast('CSV exported');
@@ -732,6 +820,72 @@ function fmt(n) {
 function fmtK(n) {
     if (n >= 10000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
     return fmt(n);
+}
+
+// ── SMS Notifications ─────────────────────────
+async function sendSMS(clientId, type) {
+    const client = allClients.find(c => c.id === clientId);
+    if (!client || !client.phone) { showToast('No phone number for this client', true); return; }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+        const res = await fetch('/api/sms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type,
+                to: '+1' + client.phone.replace(/\D/g, ''),
+                client_name: client.client_name,
+                project_name: client.project_name,
+                deposit: client.deposit,
+                total: client.total,
+                drive_url: client.drive_folder_url || null,
+            }),
+        });
+        if (!res.ok) throw new Error('SMS failed');
+        showToast(`SMS sent to ${client.client_name}`);
+    } catch (e) {
+        showToast('SMS failed — check Twilio config', true);
+    }
+    btn.disabled = false;
+    btn.textContent = type === 'deposit_received' ? '💰 Deposit Confirmed' : '🎧 Files Ready';
+}
+
+// ── Drive Folder Creation ─────────────────────
+async function createDriveFolder(clientId, clientName, projectName) {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = 'Creating...';
+
+    try {
+        const res = await fetch('/api/drive', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getPassword(),
+            },
+            body: JSON.stringify({
+                client_id: clientId,
+                client_name: clientName,
+                project_name: projectName,
+            }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Drive creation failed');
+
+        // Update local state
+        const idx = allClients.findIndex(c => c.id === clientId);
+        if (idx >= 0) allClients[idx].drive_folder_url = data.folder_url;
+        renderTable();
+        showToast(`Drive folder created for ${clientName}`);
+    } catch (e) {
+        showToast(e.message || 'Drive folder creation failed', true);
+        btn.disabled = false;
+        btn.textContent = '📁 Create Drive Folder';
+    }
 }
 
 function showToast(msg, isError) {

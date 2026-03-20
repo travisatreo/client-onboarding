@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProducerOS — Branding Preview</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Caveat:wght@500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #06060f;
+            color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .toolbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(12, 12, 30, 0.95); backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(108, 92, 231, 0.2);
+            padding: 12px 24px;
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            flex-wrap: wrap;
+        }
+        .toolbar .brand {
+            font-size: 10px; letter-spacing: 4px; color: #a29bfe;
+            text-transform: uppercase; font-weight: 600;
+        }
+        .toolbar .title {
+            font-size: 14px; font-weight: 600; color: #f5f5f5;
+        }
+        .toolbar .status {
+            font-size: 12px; padding: 4px 12px; border-radius: 20px;
+            font-weight: 600;
+        }
+        .status-live { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+        .status-preview { background: rgba(108, 92, 231, 0.15); color: #a29bfe; }
+
+        .color-editor {
+            display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+        }
+        .color-swatch {
+            display: flex; align-items: center; gap: 6px;
+        }
+        .color-swatch label {
+            font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .color-swatch input[type="color"] {
+            width: 32px; height: 32px; border: 2px solid #2a2a48; border-radius: 8px;
+            cursor: pointer; background: none; padding: 0;
+        }
+        .color-swatch input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+        .color-swatch input[type="color"]::-webkit-color-swatch { border-radius: 4px; border: none; }
+
+        .preview-frame {
+            margin-top: 72px;
+            display: flex; justify-content: center; padding: 20px 16px 40px;
+        }
+        .preview-container { max-width: 540px; width: 100%; }
+
+        /* Replicated chatbot styles */
+        .header { text-align: center; margin-bottom: 28px; }
+        .header .logo {
+            font-size: 11px; letter-spacing: 4px; color: var(--accent, #c8a851);
+            text-transform: uppercase; margin-bottom: 10px; font-weight: 600;
+        }
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-light, #e8d5a3), var(--accent, #c8a851));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 6px; letter-spacing: 0.5px;
+        }
+        .header p { color: #666; font-size: 12px; letter-spacing: 0.5px; }
+        .header .tagline {
+            color: #555; font-size: 11px; margin-top: 4px;
+            letter-spacing: 1.5px; text-transform: uppercase;
+        }
+
+        .chat-area {
+            background: #0c0c1e; border-radius: 16px;
+            border: 1px solid rgba(200, 168, 81, 0.15); overflow: hidden;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.4);
+        }
+        .messages { padding: 20px; }
+        .message { margin-bottom: 14px; display: flex; gap: 10px; }
+        .message.bot .avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent, #c8a851), var(--accent-light, #e8d5a3));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0;
+        }
+        .message.user { flex-direction: row-reverse; }
+        .bubble {
+            padding: 11px 15px; border-radius: 16px;
+            max-width: 82%; font-size: 14px; line-height: 1.5;
+        }
+        .message.bot .bubble {
+            background: #111128; border: 1px solid #1e1e3a;
+            border-bottom-left-radius: 4px;
+        }
+        .message.user .bubble {
+            background: linear-gradient(135deg, var(--secondary, #6c5ce7), var(--secondary-light, #8b7cf0));
+            border-bottom-right-radius: 4px;
+        }
+        .input-area {
+            padding: 14px 20px; border-top: 1px solid rgba(200, 168, 81, 0.1);
+            display: flex; gap: 10px;
+        }
+        .input-area input {
+            flex: 1; background: #0f0f24; border: 1px solid #2a2a48;
+            border-radius: 10px; padding: 12px 14px; color: #f5f5f5;
+            font-size: 14px; outline: none;
+        }
+        .input-area button {
+            background: linear-gradient(135deg, var(--accent, #c8a851), var(--accent-light, #e8d5a3));
+            border: none; border-radius: 10px; padding: 12px 18px;
+            color: #0a0a14; font-weight: 700; font-size: 14px; cursor: pointer;
+        }
+        .quick-reply {
+            display: inline-block; border: 1px solid rgba(200, 168, 81, 0.4);
+            color: var(--accent, #c8a851); border-radius: 20px; padding: 7px 14px;
+            font-size: 13px; margin: 4px; background: transparent;
+        }
+
+        .config-panel {
+            position: fixed; right: 0; top: 72px; bottom: 0; width: 320px;
+            background: rgba(12, 12, 30, 0.98); border-left: 1px solid rgba(108, 92, 231, 0.2);
+            overflow-y: auto; padding: 24px;
+        }
+        .config-panel h3 {
+            font-size: 14px; color: #a29bfe; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 16px;
+        }
+        .config-group { margin-bottom: 20px; }
+        .config-group label {
+            display: block; font-size: 11px; color: #888;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+        }
+        .config-group input[type="text"],
+        .config-group input[type="number"],
+        .config-group select {
+            width: 100%; background: #0f0f24; border: 1px solid #2a2a48;
+            border-radius: 8px; padding: 10px 12px; color: #f5f5f5;
+            font-size: 13px; font-family: 'Inter', sans-serif; outline: none;
+        }
+        .config-group input:focus { border-color: #6c5ce7; }
+        .color-row {
+            display: flex; gap: 12px; align-items: center;
+        }
+        .color-row input[type="color"] {
+            width: 40px; height: 36px; border: 2px solid #2a2a48; border-radius: 8px;
+            cursor: pointer; background: none;
+        }
+        .color-row input[type="text"] { flex: 1; }
+
+        .export-btn {
+            width: 100%; background: linear-gradient(135deg, #6c5ce7, #8b7cf0);
+            border: none; border-radius: 10px; padding: 14px;
+            color: white; font-weight: 700; font-size: 14px; cursor: pointer;
+            font-family: 'Inter', sans-serif; margin-top: 8px;
+        }
+        .export-btn:hover { opacity: 0.9; }
+
+        .preview-frame { margin-right: 340px; }
+
+        @media (max-width: 900px) {
+            .config-panel { display: none; }
+            .preview-frame { margin-right: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div>
+            <div class="brand">ProducerOS</div>
+            <div class="title" id="toolbarTitle">Branding Preview</div>
+        </div>
+        <span class="status status-preview" id="statusBadge">Preview Mode</span>
+    </div>
+
+    <div class="config-panel" id="configPanel">
+        <h3>Branding</h3>
+
+        <div class="config-group">
+            <label>Producer Name</label>
+            <input type="text" id="cfgName" value="Travis Atreo Productions" oninput="updatePreview()">
+        </div>
+        <div class="config-group">
+            <label>Tagline</label>
+            <input type="text" id="cfgTagline" value="Music Production for Artists & Labels" oninput="updatePreview()">
+        </div>
+        <div class="config-group">
+            <label>Rate Per Song ($)</label>
+            <input type="number" id="cfgRate" value="1500" oninput="updatePreview()">
+        </div>
+
+        <h3 style="margin-top:24px;">Colors</h3>
+
+        <div class="config-group">
+            <label>Accent Color</label>
+            <div class="color-row">
+                <input type="color" id="cfgAccent" value="#c8a851" oninput="syncColor('Accent'); updatePreview()">
+                <input type="text" id="cfgAccentText" value="#c8a851" oninput="syncColorText('Accent'); updatePreview()">
+            </div>
+        </div>
+        <div class="config-group">
+            <label>Accent Light</label>
+            <div class="color-row">
+                <input type="color" id="cfgAccentLight" value="#e8d5a3" oninput="syncColor('AccentLight'); updatePreview()">
+                <input type="text" id="cfgAccentLightText" value="#e8d5a3" oninput="syncColorText('AccentLight'); updatePreview()">
+            </div>
+        </div>
+        <div class="config-group">
+            <label>Secondary Color</label>
+            <div class="color-row">
+                <input type="color" id="cfgSecondary" value="#6c5ce7" oninput="syncColor('Secondary'); updatePreview()">
+                <input type="text" id="cfgSecondaryText" value="#6c5ce7" oninput="syncColorText('Secondary'); updatePreview()">
+            </div>
+        </div>
+        <div class="config-group">
+            <label>Secondary Light</label>
+            <div class="color-row">
+                <input type="color" id="cfgSecondaryLight" value="#8b7cf0" oninput="syncColor('SecondaryLight'); updatePreview()">
+                <input type="text" id="cfgSecondaryLightText" value="#8b7cf0" oninput="syncColorText('SecondaryLight'); updatePreview()">
+            </div>
+        </div>
+
+        <h3 style="margin-top:24px;">Payment</h3>
+        <div class="config-group">
+            <label>Method</label>
+            <select id="cfgPayment" oninput="updatePreview()">
+                <option value="zelle">Zelle</option>
+                <option value="venmo">Venmo</option>
+                <option value="cashapp">Cash App</option>
+                <option value="paypal">PayPal</option>
+            </select>
+        </div>
+        <div class="config-group">
+            <label>Payment Name</label>
+            <input type="text" id="cfgPaymentName" value="Travis Graham" oninput="updatePreview()">
+        </div>
+
+        <button class="export-btn" onclick="exportConfig()">📋 Copy Setup Command</button>
+        <p style="margin-top:8px; font-size:11px; color:#666; text-align:center;">Generates the environment variables for deployment</p>
+    </div>
+
+    <div class="preview-frame">
+        <div class="preview-container">
+            <div class="header" id="previewHeader">
+                <h1 id="pName">Travis Atreo Productions</h1>
+                <p id="pTagline">Music Production for Artists & Labels</p>
+                <div class="tagline">Onboarding & Booking</div>
+            </div>
+            <div class="chat-area">
+                <div class="messages">
+                    <div class="message bot">
+                        <div class="avatar" id="pAvatar">🎵</div>
+                        <div>
+                            <div class="bubble" id="pWelcome">Welcome to Travis Atreo Productions. I'll walk you through everything to get your project started. First — what's your full name?</div>
+                        </div>
+                    </div>
+                    <div class="message user">
+                        <div class="bubble" id="pUserBubble">Alex Rivera</div>
+                    </div>
+                    <div class="message bot">
+                        <div class="avatar">🎵</div>
+                        <div>
+                            <div class="bubble" id="pRate">Good to meet you, Alex. Our standard rate is <strong>$1,500 per song</strong>. If you were quoted a different rate, enter it below.</div>
+                            <div style="margin-top:10px;">
+                                <span class="quick-reply" id="pQR1">$1,500 (standard)</span>
+                                <span class="quick-reply" id="pQR2">I was quoted $1,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <input type="text" placeholder="Type your answer..." disabled>
+                    <button id="pSendBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Load current config from API
+    async function loadCurrentConfig() {
+        try {
+            const resp = await fetch('/api/config');
+            if (resp.ok) {
+                const c = await resp.json();
+                document.getElementById('cfgName').value = c.producer_name;
+                document.getElementById('cfgTagline').value = c.tagline;
+                document.getElementById('cfgRate').value = c.rate_per_song;
+                document.getElementById('cfgAccent').value = c.accent_color;
+                document.getElementById('cfgAccentText').value = c.accent_color;
+                document.getElementById('cfgAccentLight').value = c.accent_light;
+                document.getElementById('cfgAccentLightText').value = c.accent_light;
+                document.getElementById('cfgSecondary').value = c.secondary_color;
+                document.getElementById('cfgSecondaryText').value = c.secondary_color;
+                document.getElementById('cfgSecondaryLight').value = c.secondary_light;
+                document.getElementById('cfgSecondaryLightText').value = c.secondary_light;
+                document.getElementById('cfgPayment').value = c.payment_method;
+                document.getElementById('cfgPaymentName').value = c.payment_name;
+                updatePreview();
+            }
+        } catch(e) {}
+    }
+
+    function syncColor(name) {
+        const val = document.getElementById('cfg' + name).value;
+        document.getElementById('cfg' + name + 'Text').value = val;
+    }
+    function syncColorText(name) {
+        const val = document.getElementById('cfg' + name + 'Text').value;
+        if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+            document.getElementById('cfg' + name).value = val;
+        }
+    }
+
+    function updatePreview() {
+        const name = document.getElementById('cfgName').value;
+        const tagline = document.getElementById('cfgTagline').value;
+        const rate = parseInt(document.getElementById('cfgRate').value) || 1500;
+        const accent = document.getElementById('cfgAccent').value;
+        const accentLight = document.getElementById('cfgAccentLight').value;
+        const secondary = document.getElementById('cfgSecondary').value;
+        const secondaryLight = document.getElementById('cfgSecondaryLight').value;
+
+        // Update text
+        document.getElementById('pName').textContent = name;
+        document.getElementById('pTagline').textContent = tagline;
+        document.getElementById('pWelcome').innerHTML = `Welcome to ${name}. I'll walk you through everything to get your project started. First — what's your full name?`;
+        document.getElementById('pRate').innerHTML = `Good to meet you, Alex. Our standard rate is <strong>$${rate.toLocaleString()} per song</strong>. If you were quoted a different rate, enter it below.`;
+        document.getElementById('pQR1').textContent = `$${rate.toLocaleString()} (standard)`;
+        document.getElementById('pQR2').textContent = `I was quoted $${Math.round(rate * 0.67).toLocaleString()}`;
+        document.getElementById('toolbarTitle').textContent = `${name} — Preview`;
+
+        // Update colors via CSS variables
+        const root = document.documentElement;
+        root.style.setProperty('--accent', accent);
+        root.style.setProperty('--accent-light', accentLight);
+        root.style.setProperty('--secondary', secondary);
+        root.style.setProperty('--secondary-light', secondaryLight);
+
+        // Dynamic style overrides
+        document.getElementById('pName').style.background = `linear-gradient(135deg, ${accentLight}, ${accent})`;
+        document.getElementById('pName').style.webkitBackgroundClip = 'text';
+        document.getElementById('pName').style.webkitTextFillColor = 'transparent';
+    }
+
+    function exportConfig() {
+        const name = document.getElementById('cfgName').value;
+        const tagline = document.getElementById('cfgTagline').value;
+        const rate = document.getElementById('cfgRate').value;
+        const accent = document.getElementById('cfgAccent').value;
+        const accentLight = document.getElementById('cfgAccentLight').value;
+        const secondary = document.getElementById('cfgSecondary').value;
+        const secondaryLight = document.getElementById('cfgSecondaryLight').value;
+        const payment = document.getElementById('cfgPayment').value;
+        const paymentName = document.getElementById('cfgPaymentName').value;
+
+        const envVars = [
+            `PRODUCER_NAME="${name}"`,
+            `PRODUCER_TAGLINE="${tagline}"`,
+            `RATE_PER_SONG=${rate}`,
+            `ACCENT_COLOR=${accent}`,
+            `ACCENT_LIGHT=${accentLight}`,
+            `SECONDARY_COLOR=${secondary}`,
+            `SECONDARY_LIGHT=${secondaryLight}`,
+            `PAYMENT_METHOD=${payment}`,
+            `PAYMENT_NAME="${paymentName}"`,
+        ].join('\n');
+
+        navigator.clipboard.writeText(envVars).then(() => {
+            const btn = document.querySelector('.export-btn');
+            btn.textContent = '✓ Copied to clipboard!';
+            setTimeout(() => { btn.textContent = '📋 Copy Setup Command'; }, 2000);
+        }).catch(() => {
+            prompt('Copy these environment variables:', envVars);
+        });
+    }
+
+    loadCurrentConfig();
+</script>
+</body>
+</html>

@@ -22,6 +22,8 @@ export default async function handler(req, res) {
     const row = {
         client_name: data.client_name,
         client_email: data.client_email,
+        phone: data.client_phone ? data.client_phone.replace(/\D/g, '') : null,
+        birthday: data.client_birthday || null,
         project_name: data.project_name,
         num_songs: parseInt(data.num_songs),
         rate_per_song: parseFloat(data.rate_per_song),
@@ -32,6 +34,7 @@ export default async function handler(req, res) {
         signed: !!data.signed,
         invoice_number: data.invoice_number || null,
         signed_at: data.signed ? new Date().toISOString() : null,
+        producer_slug: process.env.PRODUCER_SLUG || null,
     };
 
     try {

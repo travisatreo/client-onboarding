@@ -310,6 +310,84 @@
             border: 1px solid #1e1e3a;
         }
 
+        /* Returning client button */
+        .returning-client-btn {
+            display: inline-block; margin-top: 8px;
+            background: none; border: none; color: #555; font-size: 11px;
+            font-family: 'Inter', sans-serif; cursor: pointer;
+            letter-spacing: 0.5px; text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .returning-client-btn:hover { color: #c8a851; }
+
+        /* Lookup overlay */
+        .lookup-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(6, 6, 15, 0.92); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .lookup-overlay.active { display: flex; }
+        .lookup-card {
+            background: #0c0c1e; border: 1px solid rgba(200, 168, 81, 0.15);
+            border-radius: 16px; padding: 32px 28px; max-width: 440px; width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 60px rgba(0,0,0,0.5), 0 0 80px rgba(108, 92, 231, 0.04);
+        }
+        .lookup-card h2 {
+            font-family: 'Playfair Display', serif; font-size: 20px;
+            background: linear-gradient(135deg, #e8d5a3, #c8a851);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 6px;
+        }
+        .lookup-card p { color: #666; font-size: 12px; margin-bottom: 16px; }
+        .lookup-card input {
+            width: 100%; background: #0f0f24; border: 1px solid #2a2a48;
+            border-radius: 10px; padding: 12px 14px; color: #f5f5f5;
+            font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
+            text-align: center; margin-bottom: 12px; transition: border-color 0.2s;
+        }
+        .lookup-card input:focus { border-color: #c8a851; }
+        .lookup-card input::placeholder { color: #444; }
+        .lookup-card .lookup-submit {
+            width: 100%; background: linear-gradient(135deg, #c8a851, #e8d5a3);
+            border: none; border-radius: 10px; padding: 12px;
+            color: #0a0a14; font-weight: 700; font-size: 14px;
+            cursor: pointer; font-family: 'Inter', sans-serif; transition: opacity 0.2s;
+        }
+        .lookup-card .lookup-submit:hover { opacity: 0.9; }
+        .lookup-card .lookup-close {
+            background: none; border: none; color: #555; font-size: 12px;
+            cursor: pointer; margin-top: 12px; font-family: 'Inter', sans-serif;
+        }
+        .lookup-card .lookup-close:hover { color: #888; }
+        .lookup-result {
+            margin-top: 16px; text-align: left; padding: 14px;
+            background: #0f0f24; border: 1px solid #2a2a48; border-radius: 10px;
+        }
+        .lookup-result .lr-name {
+            font-weight: 600; color: #f5f5f5; font-size: 14px; margin-bottom: 8px;
+        }
+        .lookup-result .lr-row {
+            display: flex; justify-content: space-between; padding: 4px 0;
+            font-size: 12px; color: #888;
+        }
+        .lookup-result .lr-row .lr-val { color: #ccc; font-weight: 500; }
+        .lookup-result .lr-drive-btn {
+            display: inline-block; margin-top: 10px; padding: 8px 16px;
+            background: linear-gradient(135deg, #6c5ce7, #8b7cf0);
+            color: white; border: none; border-radius: 8px; font-size: 12px;
+            font-weight: 600; cursor: pointer; text-decoration: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .lookup-result .lr-drive-btn:hover { opacity: 0.9; }
+        .lookup-not-found { color: #888; font-size: 13px; margin-top: 16px; }
+        .lookup-not-found button {
+            display: inline-block; margin-top: 10px; padding: 8px 16px;
+            background: linear-gradient(135deg, #c8a851, #e8d5a3);
+            color: #0a0a14; border: none; border-radius: 8px; font-size: 12px;
+            font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+        }
+
         @media (max-width: 480px) {
             body { padding: 12px 10px 30px; }
             .header h1 { font-size: 24px; }
@@ -324,14 +402,27 @@
             <h1>Travis Atreo Productions</h1>
             <p>Music Production for Artists & Labels</p>
             <div class="tagline">Onboarding & Booking</div>
+            <button class="returning-client-btn" onclick="openLookup()">Returning Client? Access Your Files</button>
+        </div>
+
+        <!-- Lookup Overlay -->
+        <div class="lookup-overlay" id="lookupOverlay">
+            <div class="lookup-card">
+                <h2>Access Your Files</h2>
+                <p>Enter your phone number to look up your project files.</p>
+                <input type="tel" id="lookupPhone" placeholder="(555) 123-4567" autocomplete="tel">
+                <button class="lookup-submit" id="lookupSubmitBtn" onclick="doLookup()">Look Up</button>
+                <div id="lookupResults"></div>
+                <button class="lookup-close" onclick="closeLookup()">Cancel</button>
+            </div>
         </div>
 
         <div class="chat-area">
             <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
-            <div class="step-label" id="stepLabel">Step 1 of 7</div>
+            <div class="step-label" id="stepLabel">Step 1 of 9</div>
             <div class="messages" id="messages"></div>
             <div class="input-area" id="inputArea">
-                <input type="text" id="userInput" placeholder="Type your answer..." autocomplete="off">
+                <input type="text" id="userInput" placeholder="Type your answer..." autocomplete="new-password" autocorrect="off" spellcheck="false" name="chatbot-input-do-not-autofill">
                 <button id="sendBtn" onclick="handleSend()">Send</button>
             </div>
             <div class="results" id="results"></div>
@@ -339,11 +430,73 @@
     </div>
 
     <script>
-        // ============ CONFIG ============
+        // ============ CONFIG (loaded from /api/config) ============
+        let PRODUCER_CONFIG = null;
         const QR_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAcIAAAHCAQAAAABUY/ToAAAD70lEQVR4nO2dTY6kOgyAPz8i1RKkPsAcBW7WZ3o3gKP0AUYiy5KCPAvnhzC7mSlVVcteoIbUJ4Jk2bGduEX5M9n++0MQnHTSSScvZJQsC4fIAsgSA2wSAA4RkWDPyi/D82br5MuRARgSAAKgxI98OyvIvA6aB0gwrwDx40mzdfIVyQCAmCLFD5V5vYtCQrdpRzcZEow7mHLFCeb/nzVbJ9+C3KZB2SaQz/0Q+dSErhzyyHc6+dZk6O4OgRiSzF+CEj+UbfoZdP66qcDwj97p5PciTYdKgG8ODYUUYLwLpj5jQm0VNCoQnzVbJ1+VPCzYAkAWQJZ4U1niLevW/BVsgE1ERKa/f6eT34cM2bQA2b6MCbZpADhEt2nALsRmr/7unU5+LxLVfSjmxtbPgzLvoOuoNqDrmFBVrb9T1fW9vtPJx5FVhwbVlUFVTZEAxmSKdPkJ8z64DjnZRHUvNmfWlJ9VY5T1ZUz2l5kgdTvk5FlUNSuI6t5ZGhswD9YGsoa5DjlZJTsvszRQPFh5xpjMVMGoJ71yHXKyip5kP5ul80WrIoHrkJMXKfFWVhVzXnOxTZdRW2y7DjnZSQ66qqMC6iqIbJFsPTSqZtfmOuRkT1pJI5AT06Mq23SILaJtdAeIIroCvn/IyV60F2CwlVGO7ZsHK7lIj8uc7KX5MbutIZkFbHkl3RbWxfG5DjlZpKlKzgBpjfIh26EctZX8kK+HnOyk5Ie02JexZqLHdKqmnQbUax1OnqWZINOSteakAa6pIfD1kJNXyVZl1FrhqOnoHU41tDrgvszJ30jbAWvhlywcIjKVSivxZhomSxQ7OZQPDb3fdzr5GDI7qpqdtj1opxgMOGUWtdVm3+s7nXwced4/1LxalkGzSu2UEiwelzl5la6W2vKJ+VLyjmd75TrkZC+5Sla2eGjbNXQqwZaNRTkR4HGZkxdy0FwH+6HlNEcU0TUGIIpAd0ZRljE9cbZOvhpJWSaXLOJanhU7lHqHViyS2yEni2QdUtVrSNY82NrqsJ4fcvI3OYfr9CUNWyiV+kfdLuuxvZOdtL4fyKxHAI58Bt/6xNiooMSANXPwvh9OdnLePLS3ME1rIKbdWY/d62VOXuWaHzqlrduiaGwHYMshM9chJ7N0fdDiZM3Q2GRIpZHVgMCtNEOLh+RWae/1nU4+msxbpKm783dy78XPdsJjz8XYp8/WydciT/WyEsxzKpC1Y9ItanNf5mQn4XIvsx5Bt2lIMn8FmPcD3X7chXmfSoT2tNk6+bpkicbuAnZA6C5sE2D+zbpZlT4ONvCO3+nkI8guLru0iLHgDFoXGcDjMicvIv6/Fpx00sknk78A7UPgK2jXgTIAAAAASUVORK5CYII=";
-        const QR_DATA_URL = "data:image/png;base64," + QR_BASE64;
-        const STANDARD_RATE = 1500;
+        let QR_DATA_URL = "data:image/png;base64," + QR_BASE64;
+        let STANDARD_RATE = 1500;
         let ratePerSong = STANDARD_RATE;
+
+        // Dynamic config loader — pulls branding from env vars via API
+        async function loadProducerConfig() {
+            try {
+                const resp = await fetch('/api/config');
+                if (resp.ok) {
+                    PRODUCER_CONFIG = await resp.json();
+                    applyConfig(PRODUCER_CONFIG);
+                }
+            } catch (e) {
+                console.log('Using default config');
+            }
+        }
+
+        function applyConfig(c) {
+            // Rates
+            STANDARD_RATE = c.rate_per_song || 1500;
+            ratePerSong = STANDARD_RATE;
+
+            // Branding text
+            document.querySelector('.header h1').textContent = c.producer_name;
+            document.querySelector('.header p').textContent = c.tagline;
+            document.title = `${c.producer_name} — Onboarding & Booking`;
+
+            // QR code
+            if (c.zelle_qr_url) QR_DATA_URL = c.zelle_qr_url;
+
+            // Inject CSS custom properties for colors
+            const root = document.documentElement;
+            root.style.setProperty('--accent', c.accent_color);
+            root.style.setProperty('--accent-light', c.accent_light);
+            root.style.setProperty('--secondary', c.secondary_color);
+            root.style.setProperty('--secondary-light', c.secondary_light);
+
+            // Update all hardcoded gold/purple colors via CSS override
+            const style = document.createElement('style');
+            style.textContent = `
+                .header .logo, .header .tagline { color: ${c.accent_color} !important; }
+                .header h1 { background: linear-gradient(135deg, ${c.accent_light}, ${c.accent_color}) !important; -webkit-background-clip: text !important; }
+                .message.bot .avatar { background: linear-gradient(135deg, ${c.accent_color}, ${c.accent_light}) !important; }
+                .message.user .bubble { background: linear-gradient(135deg, ${c.secondary_color}, ${c.secondary_light}) !important; }
+                .input-area input:focus { border-color: ${c.accent_color} !important; }
+                .input-area button, .action-btn.gold { background: linear-gradient(135deg, ${c.accent_color}, ${c.accent_light}) !important; }
+                .quick-reply { border-color: ${c.accent_color}66 !important; color: ${c.accent_color} !important; }
+                .quick-reply:hover { background: ${c.accent_color}26 !important; color: ${c.accent_light} !important; }
+                .action-btn.primary { background: linear-gradient(135deg, ${c.secondary_color}, ${c.secondary_light}) !important; }
+                .sig-tab.active { background: ${c.secondary_color} !important; border-color: ${c.secondary_color} !important; }
+                .summary-card .row.highlight .label, .summary-card .row.highlight .value { color: ${c.accent_color} !important; }
+                .summary-card .row.total .value { color: ${c.accent_color} !important; }
+                .deposit-note { color: ${c.accent_color} !important; }
+                .contract-card .section-title { color: ${c.accent_color} !important; }
+                .qr-section .name, .qr-section .amount { color: ${c.accent_color} !important; }
+                .returning-client-btn:hover { color: ${c.accent_color} !important; }
+                .lookup-card h2 { background: linear-gradient(135deg, ${c.accent_light}, ${c.accent_color}) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
+                .lookup-submit { background: linear-gradient(135deg, ${c.accent_color}, ${c.accent_light}) !important; }
+                .progress-bar, .typing span { background: ${c.accent_color} !important; }
+                .chat-area { border-color: ${c.accent_color}26 !important; }
+                body { background-image: radial-gradient(ellipse at 50% 0%, ${c.secondary_color}14 0%, transparent 60%) !important; }
+            `;
+            document.head.appendChild(style);
+        }
 
         // ============ EMAIL TYPO DETECTION ============
         const EMAIL_DOMAIN_CORRECTIONS = {
@@ -414,7 +567,7 @@
         const QUESTIONS = [
             {
                 key: "client_name",
-                message: "Welcome to Travis Atreo Productions. I'll walk you through everything to get your project started. First \u2014 what's your full name?",
+                message: () => `Welcome to ${PRODUCER_CONFIG?.producer_name || 'Travis Atreo Productions'}. I'll walk you through everything to get your project started. First \u2014 what's your full name?`,
                 placeholder: "Your full name",
                 validate: v => v.trim().length >= 2,
                 error: "I need your full name for the contract."
@@ -425,6 +578,30 @@
                 placeholder: "your@email.com",
                 validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
                 error: "Doesn't look like a valid email \u2014 try again?"
+            },
+            {
+                key: "client_phone",
+                message: "What's your phone number? We'll use this for quick updates and file access.",
+                placeholder: "(555) 123-4567",
+                validate: v => v.replace(/\D/g, '').length >= 10,
+                error: "Please enter a valid phone number with at least 10 digits.",
+                transform: v => {
+                    const digits = v.replace(/\D/g, '');
+                    // Strip leading 1 for US numbers if 11 digits
+                    const d = (digits.length === 11 && digits[0] === '1') ? digits.slice(1) : digits;
+                    if (d.length === 10) {
+                        return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+                    }
+                    return d;
+                }
+            },
+            {
+                key: "client_birthday",
+                message: "And your birthday? (Just month and day is fine)",
+                placeholder: "MM/DD or January 15",
+                quickReplies: ["Skip"],
+                validate: () => true,
+                transform: v => v.toLowerCase() === 'skip' ? null : v
             },
             {
                 key: "project_name",
@@ -443,9 +620,9 @@
             },
             {
                 key: "quoted_rate",
-                message: "Our standard rate is <strong>$1,500 per song</strong>. If Travis quoted you a different rate, enter the per-song amount below. Otherwise, confirm the standard rate.",
+                message: () => `Our standard rate is <strong>$${(PRODUCER_CONFIG?.rate_per_song || 1500).toLocaleString()} per song</strong>. If ${PRODUCER_CONFIG?.legal_name || 'Travis'} quoted you a different rate, enter the per-song amount below. Otherwise, confirm the standard rate.`,
                 placeholder: "Per-song rate in dollars",
-                quickReplies: ["$1,500 (standard)", "I was quoted $1,000"],
+                quickReplies: () => [`$${(PRODUCER_CONFIG?.rate_per_song || 1500).toLocaleString()} (standard)`, `I was quoted $${(PRODUCER_CONFIG?.min_rate || 1000).toLocaleString()}`],
                 validate: v => {
                     const cleaned = v.replace(/[^0-9]/g, '');
                     return !isNaN(cleaned) && parseInt(cleaned) >= 500 && parseInt(cleaned) <= 5000;
@@ -563,12 +740,14 @@
             setTimeout(() => {
                 hideTyping();
                 let extra = '';
-                if (q.quickReplies) {
+                const qr = typeof q.quickReplies === 'function' ? q.quickReplies() : q.quickReplies;
+                if (qr) {
                     extra = '<div class="quick-replies">' +
-                        q.quickReplies.map(r => `<button class="quick-reply" onclick="quickReply('${r}')">${r}</button>`).join('') +
+                        qr.map(r => `<button class="quick-reply" onclick="quickReply('${r}')">${r}</button>`).join('') +
                         '</div>';
                 }
-                addMessage(q.message, 'bot', extra);
+                const msg = typeof q.message === 'function' ? q.message() : q.message;
+                addMessage(msg, 'bot', extra);
             }, 500);
         }
 
@@ -662,11 +841,13 @@
             inputArea.classList.add('hidden');
             const n = parseInt(answers.num_songs);
             const total = ratePerSong * n;
-            const deposit = Math.ceil(total * 0.5);
+            const depositPct = (PRODUCER_CONFIG?.deposit_percent || 50) / 100;
+            const deposit = Math.ceil(total * depositPct);
             const today = new Date().toISOString().split('T')[0];
+            const slugPrefix = (PRODUCER_CONFIG?.producer_slug || 'TAP').toUpperCase().slice(0, 4);
 
             computedData = { numSongs: n, total, deposit, ratePerSong, today,
-                invoiceNum: `TAP-${today.replace(/-/g,'')}-${answers.client_name.split(' ')[0].toUpperCase()}`,
+                invoiceNum: `${slugPrefix}-${today.replace(/-/g,'')}-${answers.client_name.split(' ')[0].toUpperCase()}`,
                 startDateFmt: formatDate(answers.start_date),
                 endDateFmt: formatDate(addWeeks(answers.start_date, 4 * n)),
                 dateFmt: formatDate(today),
@@ -685,7 +866,8 @@
         function renderSummaryCard() {
             const n = parseInt(answers.num_songs);
             const total = ratePerSong * n;
-            const deposit = Math.ceil(total * 0.5);
+            const depositPct = (PRODUCER_CONFIG?.deposit_percent || 50) / 100;
+            const deposit = Math.ceil(total * depositPct);
             computedData.total = total;
             computedData.deposit = deposit;
             computedData.numSongs = n;
@@ -707,8 +889,8 @@
                     <div class="row editable" onclick="editField('start_date')"><span class="label">Start Date</span><span class="value" id="sv_start_date">${computedData.startDateFmt}<span class="edit-icon">\u270E</span></span></div>
                     <div class="row editable" onclick="editField('notes')"><span class="label">Notes</span><span class="value" id="sv_notes">${notesDisplay}<span class="edit-icon">\u270E</span></span></div>
                     <div class="row"><span class="label">Total</span><span class="value">$${total.toLocaleString()}</span></div>
-                    <div class="row highlight"><span class="label">Security Deposit (50%)</span><span class="value">$${deposit.toLocaleString()}</span></div>
-                    <div class="deposit-note">A 50% security deposit of <strong>$${deposit.toLocaleString()}</strong> is required upfront via Zelle before production begins. The remaining balance of <strong>$${(total - deposit).toLocaleString()}</strong> is due upon delivery of final masters.</div>
+                    <div class="row highlight"><span class="label">Security Deposit (${PRODUCER_CONFIG?.deposit_percent || 50}%)</span><span class="value">$${deposit.toLocaleString()}</span></div>
+                    <div class="deposit-note">A ${PRODUCER_CONFIG?.deposit_percent || 50}% security deposit of <strong>$${deposit.toLocaleString()}</strong> is required upfront via ${(PRODUCER_CONFIG?.payment_method || 'Zelle').charAt(0).toUpperCase() + (PRODUCER_CONFIG?.payment_method || 'Zelle').slice(1)} before production begins. The remaining balance of <strong>$${(total - deposit).toLocaleString()}</strong> is due upon delivery of final masters.</div>
                 </div>
                 <div style="margin-top:12px; text-align:center;">
                     <button class="action-btn primary" onclick="confirmSummary()">Confirm & Continue</button>
@@ -814,12 +996,12 @@
         function getContractSections() {
             const d = computedData;
             return [
-                { title: "Parties", text: `This Agreement is between Travis Graham, d/b/a Travis Atreo Productions ("Producer") and ${answers.client_name} ("Client").` },
+                { title: "Parties", text: `This Agreement is between ${PRODUCER_CONFIG?.legal_name || 'Travis Graham'}, d/b/a ${PRODUCER_CONFIG?.legal_dba || 'Travis Atreo Productions'} ("Producer") and ${answers.client_name} ("Client").` },
                 { title: "Scope of Work", text: `Producer will provide music production services for "${answers.project_name}" \u2014 ${d.numSongs} song(s). Includes beat production, arrangement, vocal production, mixing, and mastering.` },
                 { title: "Timeline", text: `Production starts ${d.startDateFmt}, estimated completion ${d.endDateFmt}. Client delays may extend timeline.` },
-                { title: "Compensation", text: `Total: $${d.total.toLocaleString()} ($${d.ratePerSong.toLocaleString()}/song). A non-refundable security deposit of 50% ($${d.deposit.toLocaleString()}) is due upfront via Zelle before production begins. Remaining balance of $${(d.total - d.deposit).toLocaleString()} due upon delivery of final masters. Late payments: 5% weekly fee. Production pauses after 7 days past due.` },
+                { title: "Compensation", text: `Total: $${d.total.toLocaleString()} ($${d.ratePerSong.toLocaleString()}/song). A non-refundable security deposit of ${PRODUCER_CONFIG?.deposit_percent || 50}% ($${d.deposit.toLocaleString()}) is due upfront via ${(PRODUCER_CONFIG?.payment_method || 'Zelle').charAt(0).toUpperCase() + (PRODUCER_CONFIG?.payment_method || 'Zelle').slice(1)} before production begins. Remaining balance of $${(d.total - d.deposit).toLocaleString()} due upon delivery of final masters. Late payments: 5% weekly fee. Production pauses after 7 days past due.` },
                 { title: "Revisions", text: `2 rounds of revisions per song included. Additional revisions billed at $150/hr.` },
-                { title: "Ownership & Rights", text: `Client receives exclusive rights to final recordings upon full payment. Producer retains portfolio/promo rights. Credit: "Produced by Travis Atreo" on all releases.` },
+                { title: "Ownership & Rights", text: `Client receives exclusive rights to final recordings upon full payment. Producer retains portfolio/promo rights. Credit: "${PRODUCER_CONFIG?.credit_line || 'Produced by Travis Atreo'}" on all releases.` },
                 { title: "Cancellation", text: `Either party can cancel with 7 days notice. Client cancels after start: security deposit is non-refundable. Producer cancels: pro-rated refund for uncompleted work.` },
                 { title: "Confidentiality", text: `Both parties keep project details and unreleased music confidential until Client authorizes release.` },
             ];
@@ -1026,12 +1208,18 @@
 
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(22); doc.setFont('helvetica', 'bold');
-            doc.text("TRAVIS ATREO", 40, 48);
-            doc.text("PRODUCTIONS", 40, 72);
+            const pName = (PRODUCER_CONFIG?.producer_name || 'TRAVIS ATREO PRODUCTIONS').toUpperCase();
+            const pNameParts = pName.split(' ');
+            if (pNameParts.length > 2) {
+                doc.text(pNameParts.slice(0, -1).join(' '), 40, 48);
+                doc.text(pNameParts[pNameParts.length - 1], 40, 72);
+            } else {
+                doc.text(pName, 40, 55);
+            }
             doc.setFontSize(10); doc.setFont('helvetica', 'normal');
             doc.text("Music Production  \u2022  Mixing  \u2022  Mastering", 40, 92);
             doc.setTextColor(224, 212, 255);
-            doc.text("travis@travisatreo.com", 40, 107);
+            doc.text(PRODUCER_CONFIG?.contact_email || "travis@travisatreo.com", 40, 107);
 
             let y = 165;
             doc.setTextColor(200, 168, 81); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
@@ -1088,10 +1276,11 @@
             let py = 530;
             doc.setFillColor(30, 30, 50); doc.roundedRect(30, py, w - 60, 200, 10, 10, 'F');
             doc.setTextColor(200, 168, 81); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-            doc.text("PAY SECURITY DEPOSIT VIA ZELLE", 55, py + 30);
+            const payMethod = (PRODUCER_CONFIG?.payment_method || 'ZELLE').toUpperCase();
+            doc.text(`PAY SECURITY DEPOSIT VIA ${payMethod}`, 55, py + 30);
             doc.setTextColor(245, 245, 245); doc.setFontSize(11); doc.setFont('helvetica', 'normal');
             doc.text("Scan the QR code to send payment instantly.", 55, py + 50);
-            doc.text("Send to: TRAVIS GRAHAM", 55, py + 68);
+            doc.text(`Send to: ${(PRODUCER_CONFIG?.payment_name || 'TRAVIS GRAHAM').toUpperCase()}`, 55, py + 68);
             doc.setTextColor(176, 176, 176); doc.setFontSize(10);
             doc.text(`Security Deposit: $${data.deposit.toLocaleString()}`, 55, py + 92);
             doc.text(`Reference: ${data.invoice_number}`, 55, py + 110);
@@ -1102,10 +1291,10 @@
             doc.setFillColor(255, 255, 255); doc.roundedRect(qrX - 10, qrY - 5, 145, 155, 5, 5, 'F');
             doc.addImage(QR_DATA_URL, 'PNG', qrX, qrY, 125, 125);
             doc.setTextColor(176, 176, 176); doc.setFontSize(8);
-            doc.text("TRAVIS GRAHAM \u2014 Zelle", qrX + 62, qrY + 142, { align: 'center' });
+            doc.text(`${(PRODUCER_CONFIG?.payment_name || 'TRAVIS GRAHAM').toUpperCase()} \u2014 ${payMethod}`, qrX + 62, qrY + 142, { align: 'center' });
 
             doc.setTextColor(176, 176, 176); doc.setFontSize(9);
-            doc.text("Travis Atreo Productions  \u2022  travis@travisatreo.com", w / 2, h - 35, { align: 'center' });
+            doc.text(`${PRODUCER_CONFIG?.producer_name || 'Travis Atreo Productions'}  \u2022  ${PRODUCER_CONFIG?.contact_email || 'travis@travisatreo.com'}`, w / 2, h - 35, { align: 'center' });
             doc.text("Thank you for your business!", w / 2, h - 20, { align: 'center' });
             return doc;
         }
@@ -1123,7 +1312,7 @@
             doc.setFontSize(24); doc.setFont('helvetica', 'bold');
             doc.text("MUSIC PRODUCTION AGREEMENT", 40, 50);
             doc.setFontSize(11); doc.setFont('helvetica', 'normal');
-            doc.text("Travis Atreo Productions", 40, 75);
+            doc.text(PRODUCER_CONFIG?.producer_name || "Travis Atreo Productions", 40, 75);
             doc.setFontSize(10);
             doc.text(`Date: ${data.date_signed}`, w - 40, 50, { align: 'right' });
 
@@ -1145,7 +1334,7 @@
 
             secHead("PARTIES");
             body(`This Music Production Agreement ("Agreement") is entered into as of ${data.date_signed}, by and between:`);
-            body(`PRODUCER: Travis Graham, d/b/a Travis Atreo Productions ("Producer"), contact: travis@travisatreo.com`);
+            body(`PRODUCER: ${PRODUCER_CONFIG?.legal_name || 'Travis Graham'}, d/b/a ${PRODUCER_CONFIG?.legal_dba || 'Travis Atreo Productions'} ("Producer"), contact: ${PRODUCER_CONFIG?.contact_email || 'travis@travisatreo.com'}`);
             body(`CLIENT: ${data.client_name} ("Client"), contact: ${data.client_email}`);
 
             secHead("1. SCOPE OF WORK");
@@ -1156,7 +1345,7 @@
 
             secHead("3. COMPENSATION");
             body(`Total fee: $${data.total.toLocaleString()} ($${data.rate_per_song.toLocaleString()} per song).`);
-            body(`A non-refundable security deposit of 50% ($${data.deposit.toLocaleString()}) is required upfront via Zelle to Travis Graham before production begins.`);
+            body(`A non-refundable security deposit of ${PRODUCER_CONFIG?.deposit_percent || 50}% ($${data.deposit.toLocaleString()}) is required upfront via ${(PRODUCER_CONFIG?.payment_method || 'Zelle').charAt(0).toUpperCase() + (PRODUCER_CONFIG?.payment_method || 'Zelle').slice(1)} to ${PRODUCER_CONFIG?.payment_name || 'Travis Graham'} before production begins.`);
             body(`Remaining balance of $${(data.total - data.deposit).toLocaleString()} due upon delivery of final masters.`);
             body(`Late payments: 5% weekly fee. Production pauses on balances exceeding 7 days past due.`);
 
@@ -1164,7 +1353,7 @@
             body(`Two (2) revision rounds per song included. Additional revisions: $150/hour. A "revision" = changes submitted together within a 48-hour window.`);
 
             secHead("5. OWNERSHIP & RIGHTS");
-            body(`Upon full payment, Client receives exclusive rights to final recordings for commercial release. Producer retains portfolio/promo rights. Credit ("Produced by Travis Atreo") required on all public releases.`);
+            body(`Upon full payment, Client receives exclusive rights to final recordings for commercial release. Producer retains portfolio/promo rights. Credit ("${PRODUCER_CONFIG?.credit_line || 'Produced by Travis Atreo'}") required on all public releases.`);
 
             secHead("6. CANCELLATION");
             body(`Either party may cancel with 7 days written notice. Client cancels post-start: security deposit is non-refundable. Producer cancels: pro-rated refund for uncompleted work.`);
@@ -1200,7 +1389,7 @@
 
             y += 15;
             doc.setTextColor(245,245,245); doc.setFontSize(10); doc.setFont('helvetica','normal');
-            doc.text("Travis Graham / Travis Atreo Productions", m, y);
+            doc.text(`${PRODUCER_CONFIG?.legal_name || 'Travis Graham'} / ${PRODUCER_CONFIG?.legal_dba || 'Travis Atreo Productions'}`, m, y);
             doc.text(data.client_name, 320, y);
             y += 16;
             doc.setTextColor(176,176,176);
@@ -1215,7 +1404,7 @@
             }
 
             doc.setTextColor(176,176,176); doc.setFontSize(8);
-            doc.text("Travis Atreo Productions  \u2022  Music Production Agreement  \u2022  Confidential", w/2, h - 20, { align: 'center' });
+            doc.text(`${PRODUCER_CONFIG?.producer_name || 'Travis Atreo Productions'}  \u2022  Music Production Agreement  \u2022  Confidential`, w/2, h - 20, { align: 'center' });
             return doc;
         }
 
@@ -1265,9 +1454,10 @@
                 <a href="${invURL}" download="Invoice_${safeName}.pdf" class="download-btn">Invoice</a>
                 <a href="${conURL}" download="Contract${signed ? '_Signed' : ''}_${safeName}.pdf" class="download-btn secondary">Contract${signedLabel}</a>
                 <div class="qr-section">
-                    <p style="color: #666; font-size: 11px; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;">Scan to Pay Security Deposit via Zelle</p>
-                    <img src="${QR_DATA_URL}" alt="Zelle QR Code">
-                    <div class="name">TRAVIS GRAHAM</div>
+                    <p style="color: #666; font-size: 11px; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;">Scan to Pay Security Deposit via ${(PRODUCER_CONFIG?.payment_method || 'Zelle').charAt(0).toUpperCase() + (PRODUCER_CONFIG?.payment_method || 'Zelle').slice(1)}</p>
+                    <img src="${QR_DATA_URL}" alt="Payment QR Code">
+                    <div class="name">${(PRODUCER_CONFIG?.payment_name || 'TRAVIS GRAHAM').toUpperCase()}</div>
+                    ${PRODUCER_CONFIG?.payment_handle ? `<div style="color:#888;font-size:12px;">${PRODUCER_CONFIG.payment_handle}</div>` : ''}
                     <div class="amount">$${d.deposit.toLocaleString()}</div>
                     <p style="color: #555; font-size: 11px; margin-top: 6px;">Ref: ${d.invoiceNum}</p>
                     <p style="color: #444; font-size: 10px; margin-top: 8px;">Production begins once deposit is received.</p>
@@ -1285,6 +1475,8 @@
             const payload = {
                 client_name: answers.client_name,
                 client_email: answers.client_email,
+                client_phone: answers.client_phone || null,
+                client_birthday: answers.client_birthday || null,
                 project_name: answers.project_name,
                 num_songs: d.numSongs,
                 rate_per_song: d.ratePerSong,
@@ -1300,6 +1492,25 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
+            }).then(async (res) => {
+                if (res.ok) {
+                    const result = await res.json();
+                    // Fire post-onboarding hooks (Drive folder + SMS) — async, no blocking
+                    if (result.id) {
+                        fetch('/api/post-onboard', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                client_id: result.id,
+                                client_name: answers.client_name,
+                                client_phone: answers.client_phone || null,
+                                project_name: answers.project_name,
+                                deposit: d.deposit,
+                                total: d.total,
+                            }),
+                        }).catch(() => {});
+                    }
+                }
             }).catch(() => {});
             // Also send email notification
             fetch('/api/notify', {
@@ -1309,8 +1520,79 @@
             }).catch(() => {});
         }
 
+        // ============ RETURNING CLIENT LOOKUP ============
+        function openLookup() {
+            document.getElementById('lookupOverlay').classList.add('active');
+            document.getElementById('lookupPhone').value = '';
+            document.getElementById('lookupResults').innerHTML = '';
+            setTimeout(() => document.getElementById('lookupPhone').focus(), 100);
+        }
+
+        function closeLookup() {
+            document.getElementById('lookupOverlay').classList.remove('active');
+        }
+
+        document.getElementById('lookupPhone').addEventListener('keydown', e => {
+            if (e.key === 'Enter') doLookup();
+        });
+
+        async function doLookup() {
+            const phone = document.getElementById('lookupPhone').value.trim();
+            if (!phone) return;
+            const btn = document.getElementById('lookupSubmitBtn');
+            btn.textContent = 'Looking up...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/lookup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                const data = await res.json();
+
+                const resultsEl = document.getElementById('lookupResults');
+                if (res.ok && data.clients && data.clients.length > 0) {
+                    resultsEl.innerHTML = data.clients.map(c => {
+                        const statusLabel = {
+                            onboarding: 'Onboarding', deposit_paid: 'Deposit Paid',
+                            in_production: 'In Production', delivered: 'Delivered',
+                            completed: 'Completed', cancelled: 'Cancelled'
+                        }[c.status || 'onboarding'] || c.status || 'Onboarding';
+                        const date = c.created_at ? new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        let driveBtn = '';
+                        if (c.drive_folder_url) {
+                            driveBtn = `<a href="${c.drive_folder_url}" target="_blank" rel="noopener" class="lr-drive-btn">View Files</a>`;
+                        }
+                        return `<div class="lookup-result">
+                            <div class="lr-name">${c.client_name || 'Client'}</div>
+                            <div class="lr-row"><span>Project</span><span class="lr-val">${c.project_name || '—'}</span></div>
+                            <div class="lr-row"><span>Status</span><span class="lr-val">${statusLabel}</span></div>
+                            <div class="lr-row"><span>Date</span><span class="lr-val">${date}</span></div>
+                            ${driveBtn}
+                        </div>`;
+                    }).join('');
+                } else {
+                    resultsEl.innerHTML = `
+                        <div class="lookup-not-found">
+                            We couldn't find an account with that number. Need to start a new project?
+                            <br><button onclick="closeLookup()">Start Onboarding</button>
+                        </div>`;
+                }
+            } catch (err) {
+                document.getElementById('lookupResults').innerHTML = `
+                    <div class="lookup-not-found">Something went wrong. Please try again.</div>`;
+            }
+
+            btn.textContent = 'Look Up';
+            btn.disabled = false;
+        }
+
         // ============ START ============
-        setTimeout(() => askQuestion(), 500);
+        // Load producer config, then start the chatbot
+        loadProducerConfig().then(() => {
+            setTimeout(() => askQuestion(), 500);
+        });
     </script>
 </body>
 </html>

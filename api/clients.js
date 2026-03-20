@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, PATCH, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, PATCH, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -24,11 +24,15 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
     };
 
+    // Producer slug scoping — each producer only sees their own clients
+    const producerSlug = process.env.PRODUCER_SLUG;
+    const slugFilter = producerSlug ? `&producer_slug=eq.${producerSlug}` : '';
+
     // GET - list all clients
     if (req.method === 'GET') {
         try {
             const response = await fetch(
-                `${supabaseUrl}/rest/v1/clients?order=created_at.desc`,
+                `${supabaseUrl}/rest/v1/clients?order=created_at.desc${slugFilter}`,
                 { headers }
             );
             if (!response.ok) {
@@ -50,7 +54,7 @@ export default async function handler(req, res) {
         if (!id) return res.status(400).json({ error: 'Missing client id' });
 
         // Only allow safe fields to be updated
-        const allowed = ['status', 'deposit_paid', 'final_paid', 'notes'];
+        const allowed = ['status', 'deposit_paid', 'final_paid', 'notes', 'drive_folder_url', 'phone', 'birthday'];
         const safeUpdates = {};
         for (const key of allowed) {
             if (updates[key] !== undefined) safeUpdates[key] = updates[key];
@@ -74,6 +78,28 @@ export default async function handler(req, res) {
             return res.status(200).json(result[0] || {});
         } catch (err) {
             console.error('Clients PATCH error:', err);
+            return res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    // DELETE - remove a client
+    if (req.method === 'DELETE') {
+        const { id } = req.body;
+        if (!id) return res.status(400).json({ error: 'Missing client id' });
+
+        try {
+            const response = await fetch(
+                `${supabaseUrl}/rest/v1/clients?id=eq.${id}`,
+                { method: 'DELETE', headers }
+            );
+            if (!response.ok) {
+                const err = await response.text();
+                console.error('Supabase delete error:', err);
+                return res.status(500).json({ error: 'Failed to delete' });
+            }
+            return res.status(200).json({ ok: true });
+        } catch (err) {
+            console.error('Clients DELETE error:', err);
             return res.status(500).json({ error: 'Server error' });
         }
     }

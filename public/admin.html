@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProducerOS — Admin Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #06060f;
+            --card: #0c0c1e;
+            --card-border: rgba(200, 168, 81, 0.12);
+            --gold: #c8a851;
+            --gold-light: #e8d5a3;
+            --purple: #6c5ce7;
+            --purple-light: #a29bfe;
+            --text: #f5f5f5;
+            --text-muted: #777;
+            --text-dim: #555;
+            --input-bg: #0f0f24;
+            --input-border: #2a2a48;
+            --green: #4ade80;
+            --danger: #e74c3c;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(108, 92, 231, 0.08) 0%, transparent 60%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 32px;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .admin-header .brand {
+            font-size: 10px; letter-spacing: 5px; color: var(--purple-light);
+            text-transform: uppercase; font-weight: 600; margin-bottom: 6px;
+        }
+        .admin-header h1 {
+            font-family: 'Playfair Display', serif; font-size: 32px;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .admin-header .subtitle {
+            color: var(--text-dim); font-size: 13px; margin-top: 8px;
+        }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; margin-bottom: 32px; max-width: 900px; margin-left: auto; margin-right: auto;
+        }
+        .stat-card {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 14px; padding: 24px; text-align: center;
+        }
+        .stat-card .stat-label {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--text-muted); margin-bottom: 8px;
+        }
+        .stat-card .stat-value {
+            font-size: 28px; font-weight: 700; color: var(--gold);
+        }
+        .stat-card .stat-value.purple { color: var(--purple-light); }
+
+        .producers-list {
+            max-width: 900px; margin: 0 auto;
+        }
+        .producers-list h2 {
+            font-family: 'Playfair Display', serif; font-size: 20px;
+            color: var(--gold-light); margin-bottom: 16px;
+        }
+
+        .producer-card {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 14px; padding: 24px; margin-bottom: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 16px;
+            transition: border-color 0.2s;
+        }
+        .producer-card:hover { border-color: rgba(200, 168, 81, 0.3); }
+
+        .producer-info h3 {
+            font-size: 18px; font-weight: 600; margin-bottom: 4px;
+        }
+        .producer-info .slug { color: var(--text-muted); font-size: 12px; font-family: monospace; }
+        .producer-info .email { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+
+        .producer-stats {
+            display: flex; gap: 20px; text-align: center;
+        }
+        .producer-stat .num { font-size: 22px; font-weight: 700; }
+        .producer-stat .num.gold { color: var(--gold); }
+        .producer-stat .num.green { color: var(--green); }
+        .producer-stat .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+
+        .producer-links {
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .producer-links a, .producer-links button {
+            background: var(--input-bg); border: 1px solid var(--input-border);
+            border-radius: 8px; padding: 8px 14px; color: var(--text);
+            font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer;
+            text-decoration: none; transition: all 0.2s; font-weight: 500;
+        }
+        .producer-links a:hover, .producer-links button:hover {
+            border-color: var(--gold); color: var(--gold);
+        }
+
+        .badge-online { color: var(--green); font-size: 11px; font-weight: 600; }
+        .badge-sms { background: rgba(108, 92, 231, 0.15); color: var(--purple-light); font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
+        .badge-drive { background: rgba(200, 168, 81, 0.15); color: var(--gold); font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
+
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: var(--text-dim);
+        }
+        .empty-state h3 { color: var(--text-muted); margin-bottom: 8px; }
+        .empty-state code {
+            display: inline-block; background: var(--input-bg); padding: 8px 16px;
+            border-radius: 8px; font-size: 13px; color: var(--gold); margin-top: 12px;
+        }
+
+        .add-btn {
+            display: block; max-width: 900px; margin: 0 auto;
+            width: 100%; background: var(--card); border: 2px dashed var(--card-border);
+            border-radius: 14px; padding: 20px; text-align: center;
+            color: var(--text-muted); font-size: 14px; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all 0.2s;
+        }
+        .add-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        @media (max-width: 640px) {
+            body { padding: 16px; }
+            .producer-card { flex-direction: column; align-items: flex-start; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="brand">ProducerOS</div>
+        <h1>Producer Admin</h1>
+        <p class="subtitle">Bird's-eye view of all deployed producer instances</p>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-label">Producers</div>
+            <div class="stat-value purple" id="statProducers">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Clients</div>
+            <div class="stat-value" id="statTotalClients">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Platform Revenue</div>
+            <div class="stat-value" id="statPlatformRevenue">$0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active Projects</div>
+            <div class="stat-value purple" id="statActiveProjects">0</div>
+        </div>
+    </div>
+
+    <div class="producers-list" id="producersList">
+        <h2>Deployed Producers</h2>
+        <div id="producerCards"></div>
+    </div>
+
+    <button class="add-btn" onclick="showSetupInstructions()">
+        + Add New Producer &nbsp; <span style="color: var(--text-dim);">via CLI</span>
+    </button>
+
+<script>
+    // Load producers from .producers/ directory manifest
+    // For now, this reads the local producer config
+    const producers = [];
+
+    async function loadProducers() {
+        // Try to load the manifest from the API
+        try {
+            const resp = await fetch('/api/producers');
+            if (resp.ok) {
+                const data = await resp.json();
+                producers.push(...data);
+            }
+        } catch (e) {
+            // Fallback: show this instance as the only producer
+            try {
+                const configResp = await fetch('/api/config');
+                if (configResp.ok) {
+                    const config = await configResp.json();
+                    producers.push({
+                        name: config.producer_name,
+                        slug: config.producer_slug,
+                        email: config.contact_email,
+                        deploy_url: window.location.origin,
+                        rate: config.rate_per_song,
+                        payment_method: config.payment_method,
+                        enable_drive: config.enable_drive,
+                        enable_sms: config.enable_sms,
+                        clients: 0,
+                        revenue: 0,
+                        active: 0,
+                    });
+                }
+            } catch (e2) {}
+        }
+        renderProducers();
+    }
+
+    function renderProducers() {
+        const container = document.getElementById('producerCards');
+
+        if (producers.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h3>No producers deployed yet</h3>
+                    <p>Run the setup CLI to deploy your first producer instance:</p>
+                    <code>./setup-producer.sh</code>
+                </div>
+            `;
+            return;
+        }
+
+        // Update stats
+        document.getElementById('statProducers').textContent = producers.length;
+        const totalClients = producers.reduce((s, p) => s + (p.clients || 0), 0);
+        const totalRevenue = producers.reduce((s, p) => s + (p.revenue || 0), 0);
+        const totalActive = producers.reduce((s, p) => s + (p.active || 0), 0);
+        document.getElementById('statTotalClients').textContent = totalClients;
+        document.getElementById('statPlatformRevenue').textContent = totalRevenue >= 10000
+            ? '$' + (totalRevenue / 1000).toFixed(1) + 'k'
+            : '$' + totalRevenue.toLocaleString();
+        document.getElementById('statActiveProjects').textContent = totalActive;
+
+        container.innerHTML = producers.map(p => `
+            <div class="producer-card">
+                <div class="producer-info">
+                    <h3>${esc(p.name)} <span class="badge-online">● live</span></h3>
+                    <div class="slug">${esc(p.slug)}</div>
+                    <div class="email">${esc(p.email || '')}</div>
+                    <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+                        ${p.enable_sms ? '<span class="badge-sms">SMS</span>' : ''}
+                        ${p.enable_drive ? '<span class="badge-drive">DRIVE</span>' : ''}
+                        <span style="font-size:10px; color:var(--text-dim);">$${(p.rate || 0).toLocaleString()}/song · ${(p.payment_method || 'zelle')}</span>
+                    </div>
+                </div>
+                <div class="producer-stats">
+                    <div class="producer-stat">
+                        <div class="num gold">${p.clients || 0}</div>
+                        <div class="label">Clients</div>
+                    </div>
+                    <div class="producer-stat">
+                        <div class="num green">$${(p.revenue || 0).toLocaleString()}</div>
+                        <div class="label">Revenue</div>
+                    </div>
+                    <div class="producer-stat">
+                        <div class="num">${p.active || 0}</div>
+                        <div class="label">Active</div>
+                    </div>
+                </div>
+                <div class="producer-links">
+                    <a href="${esc(p.deploy_url || '#')}" target="_blank">Onboarding ↗</a>
+                    <a href="${esc(p.deploy_url || '#')}/dashboard" target="_blank">Dashboard ↗</a>
+                    ${p.custom_domain ? `<a href="https://${esc(p.custom_domain)}" target="_blank">${esc(p.custom_domain)} ↗</a>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function showSetupInstructions() {
+        alert('Run this in your terminal:\n\n  cd franco-onboarding && ./setup-producer.sh\n\nThis will walk you through setting up a new producer instance.');
+    }
+
+    function esc(str) {
+        const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML;
+    }
+
+    loadProducers();
+</script>
+</body>
+</html>
