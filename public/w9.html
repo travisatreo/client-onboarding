@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>W-9 Generator — Travis Atreo Productions</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #06060f;
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(108, 92, 231, 0.08) 0%, transparent 60%);
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: flex-start;
+            padding: 40px 16px;
+        }
+
+        .container { max-width: 600px; width: 100%; }
+
+        .header { text-align: center; margin-bottom: 32px; }
+        .header .logo {
+            font-size: 10px; letter-spacing: 4px; color: #c8a851;
+            text-transform: uppercase; font-weight: 600; margin-bottom: 8px;
+        }
+        .header h1 {
+            font-family: 'Playfair Display', serif; font-size: 28px;
+            background: linear-gradient(135deg, #e8d5a3, #c8a851);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .header p { color: #666; font-size: 13px; }
+
+        .card {
+            background: #0c0c1e; border-radius: 16px;
+            border: 1px solid rgba(200, 168, 81, 0.15);
+            padding: 32px; margin-bottom: 20px;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.4);
+        }
+        .card h2 {
+            font-size: 16px; color: #c8a851; margin-bottom: 20px;
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+        }
+
+        .field { margin-bottom: 16px; }
+        .field label {
+            display: block; font-size: 11px; color: #888;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 500;
+        }
+        .field input, .field select {
+            width: 100%; background: #0f0f24; border: 1px solid #2a2a48;
+            border-radius: 10px; padding: 12px 14px; color: #f5f5f5;
+            font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
+            transition: border-color 0.2s;
+        }
+        .field input:focus, .field select:focus { border-color: #c8a851; }
+        .field input::placeholder { color: #444; }
+        .field .hint { font-size: 11px; color: #555; margin-top: 4px; }
+
+        .row { display: flex; gap: 12px; }
+        .row .field { flex: 1; }
+
+        .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+        .radio-group label {
+            display: flex; align-items: center; gap: 6px;
+            background: #0f0f24; border: 1px solid #2a2a48; border-radius: 8px;
+            padding: 8px 14px; cursor: pointer; font-size: 12px; color: #ccc;
+            text-transform: none; letter-spacing: 0; font-weight: 400;
+            transition: all 0.2s;
+        }
+        .radio-group label:hover { border-color: #c8a851; }
+        .radio-group input[type="radio"] { accent-color: #c8a851; }
+        .radio-group input[type="radio"]:checked + span { color: #c8a851; }
+
+        .sensitive-note {
+            background: rgba(200, 168, 81, 0.08); border: 1px solid rgba(200, 168, 81, 0.2);
+            border-radius: 10px; padding: 14px; margin-bottom: 16px;
+            font-size: 12px; color: #c8a851; line-height: 1.5;
+        }
+
+        .gen-btn {
+            width: 100%; background: linear-gradient(135deg, #c8a851, #e8d5a3);
+            border: none; border-radius: 12px; padding: 16px;
+            color: #0a0a14; font-weight: 700; font-size: 16px;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .gen-btn:hover { opacity: 0.9; }
+        .gen-btn:active { transform: scale(0.98); }
+
+        .prefill-note {
+            text-align: center; color: #555; font-size: 11px; margin-top: 12px;
+        }
+
+        .requester-section { margin-top: 20px; }
+
+        @media (max-width: 480px) {
+            body { padding: 16px 10px; }
+            .card { padding: 20px; }
+            .row { flex-direction: column; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Travis Atreo Productions</div>
+            <h1>W-9 Generator</h1>
+            <p>Pre-filled with your business info. Just download and send.</p>
+        </div>
+
+        <div class="card">
+            <h2>Your Information</h2>
+
+            <div class="field">
+                <label>Name (as shown on your income tax return)</label>
+                <input type="text" id="w9Name" value="Travis Graham">
+            </div>
+
+            <div class="field">
+                <label>Business name / DBA</label>
+                <input type="text" id="w9Business" value="Travis Atreo Productions">
+            </div>
+
+            <div class="field">
+                <label>Federal Tax Classification</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="taxClass" value="individual" checked><span>Individual / Sole Proprietor</span></label>
+                    <label><input type="radio" name="taxClass" value="llc_s"><span>LLC (S-Corp)</span></label>
+                    <label><input type="radio" name="taxClass" value="llc_c"><span>LLC (C-Corp)</span></label>
+                    <label><input type="radio" name="taxClass" value="llc_p"><span>LLC (Partnership)</span></label>
+                    <label><input type="radio" name="taxClass" value="ccorp"><span>C Corporation</span></label>
+                    <label><input type="radio" name="taxClass" value="scorp"><span>S Corporation</span></label>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Address (number, street, apt/suite)</label>
+                <input type="text" id="w9Address" placeholder="123 Main St, Apt 4B">
+            </div>
+
+            <div class="row">
+                <div class="field">
+                    <label>City</label>
+                    <input type="text" id="w9City" placeholder="Los Angeles">
+                </div>
+                <div class="field" style="max-width: 100px;">
+                    <label>State</label>
+                    <input type="text" id="w9State" placeholder="CA" maxlength="2">
+                </div>
+                <div class="field" style="max-width: 140px;">
+                    <label>ZIP</label>
+                    <input type="text" id="w9Zip" placeholder="90001">
+                </div>
+            </div>
+
+            <div class="sensitive-note">
+                🔒 Your SSN or EIN is <strong>not stored</strong> anywhere. It only goes into the PDF on your device.
+            </div>
+
+            <div class="field">
+                <label>SSN or EIN (enter here — stays local, never sent to server)</label>
+                <input type="password" id="w9TIN" placeholder="XXX-XX-XXXX or XX-XXXXXXX" autocomplete="off">
+                <div class="hint">Toggle visibility with the eye icon on the PDF. This never leaves your browser.</div>
+            </div>
+        </div>
+
+        <div class="card requester-section">
+            <h2>Requester (who's asking for your W-9)</h2>
+
+            <div class="field">
+                <label>Requester Name</label>
+                <input type="text" id="reqName" placeholder="e.g. Darren Hayes, Live Nation, etc.">
+            </div>
+
+            <div class="field">
+                <label>Requester Address (optional)</label>
+                <input type="text" id="reqAddress" placeholder="e.g. 123 Music Blvd, Nashville TN 37201">
+            </div>
+        </div>
+
+        <button class="gen-btn" onclick="generateW9()">Generate W-9 PDF</button>
+        <p class="prefill-note">PDF is generated entirely in your browser. Nothing is uploaded.</p>
+    </div>
+
+<script>
+    // Load producer config to pre-fill
+    async function loadConfig() {
+        try {
+            const resp = await fetch('/api/config');
+            if (resp.ok) {
+                const c = await resp.json();
+                document.getElementById('w9Name').value = c.legal_name || 'Travis Graham';
+                document.getElementById('w9Business').value = c.legal_dba || 'Travis Atreo Productions';
+            }
+        } catch(e) {}
+    }
+    loadConfig();
+
+    function generateW9() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+        const w = 612, h = 792;
+        const m = 36; // margin
+        const tw = w - m * 2;
+
+        const name = document.getElementById('w9Name').value;
+        const business = document.getElementById('w9Business').value;
+        const taxClass = document.querySelector('input[name="taxClass"]:checked')?.value || 'individual';
+        const address = document.getElementById('w9Address').value;
+        const city = document.getElementById('w9City').value;
+        const state = document.getElementById('w9State').value;
+        const zip = document.getElementById('w9Zip').value;
+        const tin = document.getElementById('w9TIN').value;
+        const reqName = document.getElementById('reqName').value;
+        const reqAddress = document.getElementById('reqAddress').value;
+
+        // Background
+        doc.setFillColor(255, 255, 255);
+        doc.rect(0, 0, w, h, 'F');
+
+        let y = 36;
+
+        // ── HEADER ──
+        doc.setFillColor(0, 0, 0);
+        doc.rect(m, y, tw, 60, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Form', m + 10, y + 25);
+        doc.setFontSize(32);
+        doc.text('W-9', m + 10, y + 52);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Request for Taxpayer', m + 90, y + 20);
+        doc.text('Identification Number and Certification', m + 90, y + 35);
+
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('(Rev. March 2024)', m + 90, y + 48);
+        doc.text('Department of the Treasury', m + 90, y + 56);
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Give Form to the', w - m - 100, y + 20);
+        doc.text('requester. Do not', w - m - 100, y + 30);
+        doc.text('send to the IRS.', w - m - 100, y + 40);
+
+        y += 68;
+
+        // ── FORM BODY ──
+        doc.setTextColor(0, 0, 0);
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.5);
+
+        // Line 1 - Name
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.text('1', m + 2, y + 8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Name (as shown on your income tax return). Name is required on this line; do not leave this line blank.', m + 12, y + 8);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(name, m + 12, y + 24);
+        doc.line(m, y + 28, w - m, y + 28);
+        y += 32;
+
+        // Line 2 - Business name
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.text('2', m + 2, y + 8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Business name/disregarded entity name, if different from above', m + 12, y + 8);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text(business, m + 12, y + 24);
+        doc.line(m, y + 28, w - m, y + 28);
+        y += 32;
+
+        // Line 3 - Tax classification
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.text('3', m + 2, y + 8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Check appropriate box for federal tax classification of the person whose name is entered on line 1.', m + 12, y + 8);
+        y += 14;
+
+        const classifications = [
+            { val: 'individual', label: 'Individual/sole proprietor or single-member LLC' },
+            { val: 'ccorp', label: 'C Corporation' },
+            { val: 'scorp', label: 'S Corporation' },
+            { val: 'llc_p', label: 'Partnership' },
+        ];
+
+        let cx = m + 12;
+        doc.setFontSize(8);
+        classifications.forEach(cls => {
+            // Checkbox
+            doc.rect(cx, y - 1, 8, 8);
+            if (taxClass === cls.val || (cls.val === 'individual' && taxClass === 'individual')) {
+                doc.setFont('helvetica', 'bold');
+                doc.text('X', cx + 1.5, y + 6);
+                doc.setFont('helvetica', 'normal');
+            }
+            doc.text(cls.label, cx + 11, y + 6);
+            cx += doc.getTextWidth(cls.label) + 22;
+            if (cx > w - m - 100) { cx = m + 12; y += 14; }
+        });
+
+        // LLC line
+        y += 14;
+        if (taxClass.startsWith('llc_')) {
+            const llcType = taxClass === 'llc_s' ? 'S' : taxClass === 'llc_c' ? 'C' : 'P';
+            doc.rect(m + 12, y - 1, 8, 8);
+            doc.setFont('helvetica', 'bold');
+            doc.text('X', m + 13.5, y + 6);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Limited liability company. Enter the tax classification (C=C corporation, S=S corporation, P=Partnership) ▶ ${llcType}`, m + 23, y + 6);
+        } else {
+            doc.rect(m + 12, y - 1, 8, 8);
+            doc.text('Limited liability company. Enter the tax classification (C=C corporation, S=S corporation, P=Partnership) ▶ ___', m + 23, y + 6);
+        }
+
+        y += 18;
+        doc.line(m, y, w - m, y);
+
+        // Line 4 - Exemptions (usually blank)
+        y += 4;
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.text('4', m + 2, y + 8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Exemptions (codes apply only to certain entities, not individuals; see instructions):', m + 12, y + 8);
+        doc.line(m, y + 28, w - m, y + 28);
+        y += 32;
+
+        // Line 5 - Address
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.text('5', m + 2, y + 8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Address (number, street, and apt. or suite no.) See instructions.', m + 12, y + 8);
+        doc.setFontSize(11);
+        doc.text(address, m + 12, y + 24);
+        doc.line(m, y + 28, w - m, y + 28);
+        y += 32;
+
+        // Line 6 - City, state, ZIP
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.text('6', m + 2, y + 8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('City, state, and ZIP code', m + 12, y + 8);
+        const cityLine = [city, state, zip].filter(Boolean).join(', ');
+        doc.setFontSize(11);
+        doc.text(cityLine, m + 12, y + 24);
+        doc.line(m, y + 28, w - m, y + 28);
+        y += 32;
+
+        // Line 7 - Requester info (right side conceptually, but we put it here)
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.text("Requester's name and address (optional)", m + 12, y + 8);
+        doc.setFontSize(10);
+        if (reqName) doc.text(reqName, m + 12, y + 22);
+        if (reqAddress) doc.text(reqAddress, m + 12, y + 34);
+        doc.line(m, y + 40, w - m, y + 40);
+        y += 48;
+
+        // ── PART I - TIN ──
+        doc.setFillColor(0, 0, 0);
+        doc.rect(m, y, tw, 18, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Part I', m + 6, y + 13);
+        doc.text('Taxpayer Identification Number (TIN)', m + 50, y + 13);
+        y += 22;
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Enter your TIN in the appropriate box. The TIN provided must match the name given on line 1.', m + 4, y + 10);
+        y += 16;
+
+        // SSN or EIN boxes
+        if (tin) {
+            const digits = tin.replace(/\D/g, '');
+            if (digits.length === 9) {
+                // Format as SSN
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Social security number', m + 300, y);
+                y += 6;
+                const ssnX = m + 300;
+                for (let i = 0; i < 9; i++) {
+                    doc.rect(ssnX + i * 22, y, 20, 18);
+                    doc.setFontSize(14);
+                    doc.text(digits[i], ssnX + i * 22 + 6, y + 14);
+                    if (i === 2 || i === 4) {
+                        doc.setFontSize(16);
+                        doc.text('-', ssnX + i * 22 + 20, y + 14);
+                    }
+                }
+                y += 24;
+
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text('or', m + 300, y + 6);
+                y += 10;
+
+                doc.setFont('helvetica', 'bold');
+                doc.text('Employer identification number', m + 300, y + 6);
+                y += 10;
+                for (let i = 0; i < 9; i++) {
+                    doc.rect(m + 300 + i * 22, y, 20, 18);
+                    if (i === 1) {
+                        doc.setFontSize(16);
+                        doc.text('-', m + 300 + i * 22 + 20, y + 14);
+                    }
+                }
+            }
+        } else {
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Social security number', m + 300, y);
+            y += 6;
+            for (let i = 0; i < 9; i++) {
+                doc.rect(m + 300 + i * 22, y, 20, 18);
+            }
+            y += 24;
+            doc.setFont('helvetica', 'normal');
+            doc.text('or', m + 300, y + 6);
+            y += 10;
+            doc.setFont('helvetica', 'bold');
+            doc.text('Employer identification number', m + 300, y + 6);
+            y += 10;
+            for (let i = 0; i < 9; i++) {
+                doc.rect(m + 300 + i * 22, y, 20, 18);
+            }
+        }
+
+        y += 28;
+        doc.line(m, y, w - m, y);
+
+        // ── PART II - CERTIFICATION ──
+        y += 4;
+        doc.setFillColor(0, 0, 0);
+        doc.rect(m, y, tw, 18, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Part II', m + 6, y + 13);
+        doc.text('Certification', m + 50, y + 13);
+        y += 22;
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        const certText = 'Under penalties of perjury, I certify that: 1. The number shown on this form is my correct taxpayer identification number, 2. I am not subject to backup withholding because: (a) I am exempt from backup withholding, or (b) I have not been notified by the IRS that I am subject to backup withholding as a result of a failure to report all interest or dividends, or (c) the IRS has notified me that I am no longer subject to backup withholding, and 3. I am a U.S. citizen or other U.S. person, 4. The FATCA code(s) entered on this form (if any) indicating that I am exempt from FATCA reporting is correct.';
+        const certLines = doc.splitTextToSize(certText, tw - 8);
+        certLines.forEach(line => {
+            if (y > h - 60) { doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,w,h,'F'); y = 40; }
+            doc.text(line, m + 4, y + 8);
+            y += 9;
+        });
+
+        y += 8;
+
+        // Signature line
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Sign Here', m + 4, y + 10);
+        doc.line(m + 60, y + 12, m + 360, y + 12);
+        doc.line(m + 380, y + 12, w - m, y + 12);
+
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Signature of U.S. person ▶', m + 60, y + 20);
+        doc.text('Date ▶', m + 380, y + 20);
+
+        // Auto-sign with name
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(0, 0, 128);
+        doc.text(name, m + 80, y + 10);
+
+        // Date
+        const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(0, 0, 128);
+        doc.text(today, m + 400, y + 10);
+
+        // Footer
+        doc.setTextColor(150, 150, 150);
+        doc.setFontSize(7);
+        doc.text('Generated by ProducerOS — travisatreoproductions.com', w / 2, h - 20, { align: 'center' });
+
+        // Download
+        const safeName = name.replace(/\s/g, '_');
+        doc.save(`W9_${safeName}_${new Date().toISOString().slice(0,10)}.pdf`);
+    }
+</script>
+</body>
+</html>
