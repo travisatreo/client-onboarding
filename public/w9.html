@@ -70,12 +70,14 @@
             background: #0f0f24; border: 1px solid #2a2a48; border-radius: 8px;
             padding: 10px 14px; cursor: pointer; font-size: 13px; color: #ccc;
             text-transform: none; letter-spacing: 0; font-weight: 400;
-            transition: all 0.2s; white-space: nowrap;
-            min-width: 0;
+            transition: all 0.2s;
         }
         .radio-group label:hover { border-color: #c8a851; }
-        .radio-group input[type="radio"] { accent-color: #c8a851; }
+        .radio-group input[type="radio"] { accent-color: #c8a851; flex-shrink: 0; }
         .radio-group input[type="radio"]:checked + span { color: #c8a851; }
+        @media (max-width: 480px) {
+            .radio-group { grid-template-columns: 1fr; }
+        }
 
         .sensitive-note {
             background: rgba(200, 168, 81, 0.08); border: 1px solid rgba(200, 168, 81, 0.2);
