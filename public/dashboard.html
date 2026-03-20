@@ -3,561 +3,743 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travis Atreo Productions — Dashboard</title>
+    <title>Travis Atreo Productions — Operations Dashboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        :root {
+            --bg: #06060f;
+            --card: #0c0c1e;
+            --card-border: rgba(200, 168, 81, 0.12);
+            --gold: #c8a851;
+            --gold-light: #e8d5a3;
+            --purple: #6c5ce7;
+            --purple-light: #a29bfe;
+            --text: #f5f5f5;
+            --text-muted: #777;
+            --text-dim: #555;
+            --input-bg: #0f0f24;
+            --input-border: #2a2a48;
+            --row-hover: rgba(200, 168, 81, 0.04);
+            --danger: #e74c3c;
+        }
+
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: #06060f;
-            color: #f5f5f5;
+            background: var(--bg);
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(108, 92, 231, 0.08) 0%, transparent 60%);
+            color: var(--text);
             min-height: 100vh;
         }
 
-        /* Login screen */
+        /* ── Login ───────────────────────────────── */
         .login-screen {
             min-height: 100vh; display: flex; align-items: center; justify-content: center;
             padding: 20px;
         }
         .login-box {
-            background: #0c0c1e; border: 1px solid rgba(200, 168, 81, 0.15);
-            border-radius: 16px; padding: 40px; max-width: 400px; width: 100%; text-align: center;
-            box-shadow: 0 4px 40px rgba(0,0,0,0.4);
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 48px 40px; max-width: 420px; width: 100%; text-align: center;
+            box-shadow: 0 4px 60px rgba(0,0,0,0.5), 0 0 80px rgba(108, 92, 231, 0.04);
+        }
+        .login-box .brand {
+            font-size: 11px; letter-spacing: 4px; color: var(--gold);
+            text-transform: uppercase; font-weight: 600; margin-bottom: 10px;
         }
         .login-box h1 {
-            font-family: 'Playfair Display', serif; font-size: 24px;
-            background: linear-gradient(135deg, #e8d5a3, #c8a851);
+            font-family: 'Playfair Display', serif; font-size: 26px;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
             margin-bottom: 6px;
         }
-        .login-box .subtitle { color: #666; font-size: 12px; margin-bottom: 24px; }
+        .login-box .subtitle { color: var(--text-muted); font-size: 12px; margin-bottom: 28px; letter-spacing: 0.5px; }
         .login-box input {
-            width: 100%; background: #0f0f24; border: 1px solid #2a2a48; border-radius: 10px;
-            padding: 14px 16px; color: #f5f5f5; font-size: 14px; font-family: 'Inter', sans-serif;
-            outline: none; margin-bottom: 12px; text-align: center; letter-spacing: 2px;
+            width: 100%; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px;
+            padding: 14px 16px; color: var(--text); font-size: 14px; font-family: 'Inter', sans-serif;
+            outline: none; margin-bottom: 14px; text-align: center; letter-spacing: 2px;
+            transition: border-color 0.2s;
         }
-        .login-box input:focus { border-color: #c8a851; }
-        .login-box button {
-            width: 100%; background: linear-gradient(135deg, #c8a851, #e8d5a3); border: none;
+        .login-box input:focus { border-color: var(--gold); }
+        .login-box input::placeholder { color: var(--text-dim); letter-spacing: 1px; }
+        .login-btn {
+            width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border: none;
             border-radius: 10px; padding: 14px; color: #0a0a14; font-weight: 700; font-size: 14px;
-            cursor: pointer; font-family: 'Inter', sans-serif;
+            cursor: pointer; font-family: 'Inter', sans-serif; letter-spacing: 0.5px;
+            transition: opacity 0.2s, transform 0.1s;
         }
-        .login-box .error { color: #e74c3c; font-size: 12px; margin-top: 8px; display: none; }
+        .login-btn:hover { opacity: 0.92; }
+        .login-btn:active { transform: scale(0.98); }
+        .login-error { color: var(--danger); font-size: 12px; margin-top: 10px; display: none; }
 
-        /* Dashboard */
-        .dashboard { display: none; }
-        .dashboard.active { display: block; }
+        /* ── Dashboard Shell ─────────────────────── */
+        .dashboard { display: none; min-height: 100vh; }
 
-        /* Top bar */
-        .topbar {
-            padding: 16px 24px; border-bottom: 1px solid rgba(200, 168, 81, 0.1);
-            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+        .dash-header {
+            padding: 28px 32px 20px; border-bottom: 1px solid var(--card-border);
+            background: linear-gradient(180deg, rgba(12,12,30,0.95) 0%, var(--bg) 100%);
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px);
         }
-        .topbar h1 {
-            font-family: 'Playfair Display', serif; font-size: 20px;
-            background: linear-gradient(135deg, #e8d5a3, #c8a851);
+        .dash-header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+        .dash-header .brand {
+            font-size: 10px; letter-spacing: 4px; color: var(--gold);
+            text-transform: uppercase; font-weight: 600; margin-bottom: 4px;
+        }
+        .dash-header h1 {
+            font-family: 'Playfair Display', serif; font-size: 22px;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-        .topbar-actions { display: flex; gap: 8px; align-items: center; }
-        .topbar-btn {
-            background: #111128; border: 1px solid #2a2a48; border-radius: 8px;
-            padding: 8px 14px; color: #888; font-size: 12px; cursor: pointer;
-            font-family: 'Inter', sans-serif; font-weight: 500; transition: all 0.2s;
-        }
-        .topbar-btn:hover { background: #1a1a35; color: #ccc; }
-        .topbar-btn.gold { background: linear-gradient(135deg, #c8a851, #e8d5a3); color: #0a0a14; font-weight: 700; border: none; }
+        .dash-header .subtitle { color: var(--text-dim); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
 
-        /* Stats row */
+        .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+        .btn {
+            background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px;
+            padding: 9px 16px; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: all 0.2s; font-weight: 500; white-space: nowrap;
+        }
+        .btn:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: #0a0a14; border: none; font-weight: 700;
+        }
+        .btn-gold:hover { opacity: 0.9; color: #0a0a14; }
+        .btn-danger { border-color: rgba(231,76,60,0.3); color: #e74c3c; }
+        .btn-danger:hover { border-color: #e74c3c; background: rgba(231,76,60,0.1); }
+
+        /* ── Controls Row ────────────────────────── */
+        .controls-row {
+            display: flex; gap: 10px; padding: 16px 32px; align-items: center; flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1; min-width: 200px; background: var(--input-bg); border: 1px solid var(--input-border);
+            border-radius: 8px; padding: 10px 14px 10px 36px; color: var(--text); font-size: 13px;
+            font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: 12px center;
+        }
+        .search-box:focus { border-color: var(--gold); }
+        .search-box::placeholder { color: var(--text-dim); }
+
+        .filter-select {
+            background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px;
+            padding: 10px 14px; color: var(--text); font-size: 13px; font-family: 'Inter', sans-serif;
+            outline: none; cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23777' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: calc(100% - 10px) center;
+            padding-right: 30px; min-width: 130px;
+        }
+        .filter-select:focus { border-color: var(--gold); }
+        .filter-select option { background: var(--card); color: var(--text); }
+
+        /* ── Stats Row ───────────────────────────── */
         .stats-row {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px; padding: 20px 24px;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+            padding: 0 32px 16px;
         }
         .stat-card {
-            background: #0c0c1e; border: 1px solid rgba(200, 168, 81, 0.1);
-            border-radius: 12px; padding: 16px 20px;
+            background: var(--card); border: 1px solid var(--card-border); border-radius: 12px;
+            padding: 18px 16px; text-align: center;
+            transition: border-color 0.2s;
         }
-        .stat-card .label { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-        .stat-card .value { font-size: 28px; font-weight: 700; color: #f5f5f5; }
-        .stat-card .value.gold { color: #c8a851; }
-        .stat-card .sub { color: #555; font-size: 11px; margin-top: 4px; }
-
-        /* Filters */
-        .filters {
-            padding: 0 24px 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+        .stat-card:hover { border-color: rgba(200, 168, 81, 0.25); }
+        .stat-card .stat-label {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--text-muted); margin-bottom: 8px; font-weight: 500;
         }
-        .filter-btn {
-            background: transparent; border: 1px solid #2a2a48; border-radius: 20px;
-            padding: 6px 14px; color: #666; font-size: 12px; cursor: pointer;
-            font-family: 'Inter', sans-serif; transition: all 0.2s;
+        .stat-card .stat-value {
+            font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-        .filter-btn:hover { color: #aaa; border-color: #444; }
-        .filter-btn.active { background: #6c5ce7; color: white; border-color: #6c5ce7; }
-        .search-input {
-            background: #0f0f24; border: 1px solid #2a2a48; border-radius: 20px;
-            padding: 6px 14px; color: #f5f5f5; font-size: 12px; font-family: 'Inter', sans-serif;
-            outline: none; width: 200px; margin-left: auto;
-        }
-        .search-input:focus { border-color: #c8a851; }
-        .search-input::placeholder { color: #444; }
-
-        /* Table */
-        .table-wrap { padding: 0 24px 24px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        thead th {
-            padding: 10px 12px; font-size: 10px; color: #c8a851; text-transform: uppercase;
-            letter-spacing: 1px; text-align: left; border-bottom: 1px solid #1e1e3a;
-            font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap;
-        }
-        thead th:hover { color: #e8d5a3; }
-        thead th .sort-arrow { font-size: 8px; margin-left: 4px; opacity: 0.4; }
-        thead th.sorted .sort-arrow { opacity: 1; }
-        tbody tr {
-            border-bottom: 1px solid #111128; transition: background 0.15s; cursor: pointer;
-        }
-        tbody tr:hover { background: rgba(108, 92, 231, 0.05); }
-        tbody td { padding: 12px; font-size: 13px; color: #ccc; white-space: nowrap; }
-        tbody td.name { color: #f5f5f5; font-weight: 600; }
-        tbody td.email { color: #a29bfe; }
-
-        .status-badge {
-            display: inline-block; padding: 3px 10px; border-radius: 12px;
-            font-size: 11px; font-weight: 600; text-transform: capitalize;
-        }
-        .status-badge.onboarding { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
-        .status-badge.deposit_paid { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-        .status-badge.in_production { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-        .status-badge.delivered { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-        .status-badge.completed { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
-        .status-badge.cancelled { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-
-        .paid-yes { color: #4ade80; }
-        .paid-no { color: #555; }
-
-        /* Detail panel */
-        .detail-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6); z-index: 100;
-        }
-        .detail-overlay.active { display: flex; align-items: center; justify-content: center; }
-        .detail-panel {
-            background: #0c0c1e; border: 1px solid rgba(200, 168, 81, 0.15);
-            border-radius: 16px; max-width: 500px; width: 90%; max-height: 85vh;
-            overflow-y: auto; padding: 28px;
-        }
-        .detail-panel h2 {
-            font-family: 'Playfair Display', serif; font-size: 20px; color: #f5f5f5;
-            margin-bottom: 4px;
-        }
-        .detail-panel .detail-email { color: #a29bfe; font-size: 13px; margin-bottom: 20px; }
-        .detail-row {
-            display: flex; justify-content: space-between; padding: 10px 0;
-            border-bottom: 1px solid #1a1a35; font-size: 13px;
-        }
-        .detail-row .dl { color: #666; }
-        .detail-row .dv { color: #e8e8e8; font-weight: 500; }
-        .detail-row.gold .dl { color: #c8a851; font-weight: 600; }
-        .detail-row.gold .dv { color: #c8a851; font-weight: 700; }
-
-        .detail-actions { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .detail-actions select, .detail-actions button {
-            background: #111128; border: 1px solid #2a2a48; border-radius: 8px;
-            padding: 8px 14px; color: #ccc; font-size: 12px; cursor: pointer;
-            font-family: 'Inter', sans-serif;
-        }
-        .detail-actions select:focus { border-color: #c8a851; outline: none; }
-        .detail-actions button:hover { background: #1a1a35; }
-        .detail-actions .save-btn {
-            background: linear-gradient(135deg, #6c5ce7, #8b7cf0); color: white;
-            border: none; font-weight: 600;
-        }
-        .close-btn {
-            position: absolute; top: 16px; right: 16px; background: none; border: none;
-            color: #666; font-size: 20px; cursor: pointer;
+        .stat-card.purple .stat-value {
+            background: linear-gradient(135deg, var(--purple-light), var(--purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
 
-        .empty-state {
-            text-align: center; padding: 60px 20px; color: #444;
+        /* ── Client Table ────────────────────────── */
+        .table-wrap {
+            padding: 0 32px 40px; overflow-x: auto;
         }
-        .empty-state h3 { color: #666; margin-bottom: 8px; }
+        .client-table {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            background: var(--card); border: 1px solid var(--card-border); border-radius: 12px;
+            overflow: hidden; min-width: 900px;
+        }
+        .client-table thead { background: rgba(200, 168, 81, 0.06); }
+        .client-table th {
+            padding: 12px 14px; font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+            color: var(--text-muted); font-weight: 600; text-align: left; cursor: pointer;
+            user-select: none; white-space: nowrap; border-bottom: 1px solid var(--card-border);
+            transition: color 0.2s;
+        }
+        .client-table th:hover { color: var(--gold); }
+        .client-table th .sort-arrow { font-size: 9px; margin-left: 4px; opacity: 0.4; }
+        .client-table th.sorted .sort-arrow { opacity: 1; color: var(--gold); }
 
-        .loading { text-align: center; padding: 40px; color: #666; }
+        .client-table td {
+            padding: 12px 14px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: middle; white-space: nowrap;
+        }
+        .client-table tbody tr { transition: background 0.15s; cursor: pointer; }
+        .client-table tbody tr:hover { background: var(--row-hover); }
+        .client-table tbody tr:last-child td { border-bottom: none; }
 
+        .client-name { font-weight: 600; color: var(--text); }
+        .client-email { color: var(--text-muted); font-size: 12px; }
+        .client-project { color: var(--purple-light); font-weight: 500; }
+
+        /* Status badges */
+        .badge {
+            display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 10px;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer;
+            transition: all 0.2s; user-select: none;
+        }
+        .badge:hover { filter: brightness(1.2); transform: scale(1.05); }
+        .badge-onboarding { background: rgba(120,120,140,0.2); color: #999; }
+        .badge-deposit_paid { background: rgba(200,168,81,0.15); color: var(--gold); }
+        .badge-in_production { background: rgba(108,92,231,0.15); color: var(--purple-light); }
+        .badge-delivered { background: rgba(52,152,219,0.15); color: #5dade2; }
+        .badge-completed { background: rgba(39,174,96,0.15); color: #2ecc71; }
+        .badge-cancelled { background: rgba(231,76,60,0.15); color: #e74c3c; }
+
+        /* Checkboxes */
+        .check-toggle {
+            width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--input-border);
+            background: transparent; cursor: pointer; display: inline-flex; align-items: center;
+            justify-content: center; transition: all 0.2s; font-size: 11px; color: transparent;
+            vertical-align: middle;
+        }
+        .check-toggle.checked {
+            border-color: var(--gold); background: rgba(200,168,81,0.15); color: var(--gold);
+        }
+        .check-toggle:hover { border-color: var(--gold); }
+
+        /* Expanded row */
+        .expand-row { display: none; }
+        .expand-row.open { display: table-row; }
+        .expand-row td {
+            background: rgba(108,92,231,0.03); padding: 16px 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .expand-content { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; }
+        .expand-field { font-size: 12px; }
+        .expand-field .label { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .expand-field .value { color: var(--text); font-weight: 500; }
+        .notes-input {
+            background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 6px;
+            padding: 8px 10px; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif;
+            outline: none; width: 300px; max-width: 100%; resize: vertical; min-height: 60px;
+            transition: border-color 0.2s;
+        }
+        .notes-input:focus { border-color: var(--gold); }
+
+        /* Loading & Empty */
+        .loading-spinner {
+            display: flex; align-items: center; justify-content: center; padding: 60px;
+            color: var(--text-muted); font-size: 13px; gap: 10px;
+        }
+        .spinner {
+            width: 20px; height: 20px; border: 2px solid var(--input-border);
+            border-top-color: var(--gold); border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 13px; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; background: var(--card);
+            border: 1px solid var(--card-border); border-radius: 10px; padding: 12px 20px;
+            font-size: 13px; color: var(--text); box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            z-index: 9999; opacity: 0; transform: translateY(10px);
+            transition: all 0.3s; pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { border-color: rgba(231,76,60,0.3); }
+
+        /* ── Responsive ──────────────────────────── */
+        @media (max-width: 1100px) {
+            .stats-row { grid-template-columns: repeat(3, 1fr); }
+        }
         @media (max-width: 768px) {
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
-            .topbar { padding: 12px 16px; }
-            .stats-row, .filters, .table-wrap { padding-left: 16px; padding-right: 16px; }
-            .search-input { width: 100%; margin-left: 0; }
+            .dash-header { padding: 20px 16px 16px; }
+            .controls-row { padding: 12px 16px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); padding: 0 16px 12px; gap: 8px; }
+            .stat-card { padding: 14px 12px; }
+            .stat-card .stat-value { font-size: 18px; }
+            .table-wrap { padding: 0 16px 32px; }
+            .expand-content { gap: 16px; }
+            .notes-input { width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .stat-card:last-child { grid-column: 1 / -1; }
+            .dash-header h1 { font-size: 18px; }
+            .header-actions { width: 100%; }
+            .header-actions .btn { flex: 1; text-align: center; }
         }
     </style>
 </head>
 <body>
 
-<!-- Login -->
+<!-- ── LOGIN SCREEN ──────────────────────────── -->
 <div class="login-screen" id="loginScreen">
     <div class="login-box">
-        <h1>Travis Atreo Productions</h1>
-        <div class="subtitle">OPERATIONS DASHBOARD</div>
-        <input type="password" id="passwordInput" placeholder="Enter password" autofocus>
-        <button onclick="doLogin()">Enter</button>
-        <div class="error" id="loginError">Incorrect password</div>
+        <div class="brand">Travis Atreo Productions</div>
+        <h1>Operations Dashboard</h1>
+        <p class="subtitle">Enter your dashboard password to continue</p>
+        <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password">
+        <button class="login-btn" id="loginBtn" onclick="attemptLogin()">Access Dashboard</button>
+        <p class="login-error" id="loginError">Invalid password. Please try again.</p>
     </div>
 </div>
 
-<!-- Dashboard -->
+<!-- ── DASHBOARD ─────────────────────────────── -->
 <div class="dashboard" id="dashboard">
-    <div class="topbar">
-        <h1>Travis Atreo Productions</h1>
-        <div class="topbar-actions">
-            <button class="topbar-btn" onclick="exportCSV()">Export CSV</button>
-            <button class="topbar-btn" onclick="refreshData()">Refresh</button>
-            <button class="topbar-btn" onclick="logout()">Logout</button>
+
+    <!-- Header -->
+    <div class="dash-header">
+        <div class="dash-header-top">
+            <div>
+                <div class="brand">Travis Atreo Productions</div>
+                <h1>Operations Dashboard</h1>
+                <p class="subtitle">Client Management &amp; Revenue Tracking</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn" onclick="exportCSV()">Export CSV</button>
+                <button class="btn btn-danger" onclick="logout()">Log Out</button>
+            </div>
         </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-row">
+        <input type="text" class="search-box" id="searchBox" placeholder="Search clients, emails, projects..." oninput="renderTable()">
+        <select class="filter-select" id="periodFilter" onchange="renderTable()">
+            <option value="all">All Time</option>
+            <option value="ytd" selected>YTD 2026</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+        </select>
+        <select class="filter-select" id="monthFilter" onchange="renderTable()">
+            <option value="all">All Months</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
     </div>
 
     <!-- Stats -->
     <div class="stats-row" id="statsRow">
-        <div class="stat-card"><div class="label">Total Clients</div><div class="value" id="statClients">—</div></div>
-        <div class="stat-card"><div class="label">Total Revenue</div><div class="value gold" id="statRevenue">—</div><div class="sub" id="statRevenueNote"></div></div>
-        <div class="stat-card"><div class="label">Deposits Collected</div><div class="value gold" id="statDeposits">—</div></div>
-        <div class="stat-card"><div class="label">Outstanding</div><div class="value" id="statOutstanding">—</div><div class="sub" id="statOutstandingNote"></div></div>
-        <div class="stat-card"><div class="label">Songs Produced</div><div class="value" id="statSongs">—</div></div>
-    </div>
-
-    <!-- Filters -->
-    <div class="filters">
-        <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">All</button>
-        <button class="filter-btn" data-filter="onboarding" onclick="setFilter('onboarding', this)">Onboarding</button>
-        <button class="filter-btn" data-filter="deposit_paid" onclick="setFilter('deposit_paid', this)">Deposit Paid</button>
-        <button class="filter-btn" data-filter="in_production" onclick="setFilter('in_production', this)">In Production</button>
-        <button class="filter-btn" data-filter="delivered" onclick="setFilter('delivered', this)">Delivered</button>
-        <button class="filter-btn" data-filter="completed" onclick="setFilter('completed', this)">Completed</button>
-        <input type="text" class="search-input" placeholder="Search clients..." oninput="onSearch(this.value)">
+        <div class="stat-card">
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-value" id="statRevenue">$0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Deposits Collected</div>
+            <div class="stat-value" id="statDeposits">$0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Outstanding Balance</div>
+            <div class="stat-value" id="statOutstanding">$0</div>
+        </div>
+        <div class="stat-card purple">
+            <div class="stat-label">Active Projects</div>
+            <div class="stat-value" id="statActive">0</div>
+        </div>
+        <div class="stat-card purple">
+            <div class="stat-label">Total Clients</div>
+            <div class="stat-value" id="statClients">0</div>
+        </div>
     </div>
 
     <!-- Table -->
     <div class="table-wrap">
-        <div class="loading" id="loadingState">Loading clients...</div>
-        <table id="clientsTable" style="display:none;">
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            Loading clients...
+        </div>
+        <table class="client-table" id="clientTable" style="display:none;">
             <thead>
                 <tr>
-                    <th onclick="sortBy('created_at')">Date <span class="sort-arrow">&#9660;</span></th>
-                    <th onclick="sortBy('client_name')">Client <span class="sort-arrow">&#9660;</span></th>
-                    <th onclick="sortBy('project_name')">Project <span class="sort-arrow">&#9660;</span></th>
-                    <th onclick="sortBy('num_songs')">Songs <span class="sort-arrow">&#9660;</span></th>
-                    <th onclick="sortBy('total')">Total <span class="sort-arrow">&#9660;</span></th>
-                    <th onclick="sortBy('deposit')">Deposit <span class="sort-arrow">&#9660;</span></th>
-                    <th>Dep. Paid</th>
-                    <th>Final Paid</th>
-                    <th onclick="sortBy('status')">Status <span class="sort-arrow">&#9660;</span></th>
-                    <th>Signed</th>
+                    <th data-sort="created_at" onclick="sortBy('created_at')">Date <span class="sort-arrow">&#9660;</span></th>
+                    <th data-sort="client_name" onclick="sortBy('client_name')">Client <span class="sort-arrow">&#9660;</span></th>
+                    <th data-sort="client_email" onclick="sortBy('client_email')">Email <span class="sort-arrow">&#9660;</span></th>
+                    <th data-sort="project_name" onclick="sortBy('project_name')">Project <span class="sort-arrow">&#9660;</span></th>
+                    <th data-sort="num_songs" onclick="sortBy('num_songs')">Songs <span class="sort-arrow">&#9660;</span></th>
+                    <th data-sort="rate_per_song" onclick="sortBy('rate_per_song')">Rate <span class="sort-arrow">&#9660;</span></th>
+                    <th data-sort="total" onclick="sortBy('total')">Total <span class="sort-arrow">&#9660;</span></th>
+                    <th data-sort="deposit" onclick="sortBy('deposit')">Deposit <span class="sort-arrow">&#9660;</span></th>
+                    <th data-sort="status" onclick="sortBy('status')">Status <span class="sort-arrow">&#9660;</span></th>
+                    <th>Paid</th>
                 </tr>
             </thead>
-            <tbody id="clientsBody"></tbody>
+            <tbody id="clientBody"></tbody>
         </table>
-        <div class="empty-state" id="emptyState" style="display:none;">
-            <h3>No clients yet</h3>
-            <p>Submissions from your onboarding form will appear here.</p>
-        </div>
+        <div class="empty-state" id="emptyState" style="display:none;">No clients found matching your filters.</div>
     </div>
 </div>
 
-<!-- Detail Overlay -->
-<div class="detail-overlay" id="detailOverlay" onclick="closeDetail(event)">
-    <div class="detail-panel" id="detailPanel" style="position:relative;"></div>
-</div>
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script>
-    let token = sessionStorage.getItem('dash_token') || '';
-    let clients = [];
-    let currentFilter = 'all';
-    let searchQuery = '';
-    let sortField = 'created_at';
-    let sortDir = 'desc';
+// ── State ──────────────────────────────────────
+let allClients = [];
+let sortField = 'created_at';
+let sortDir = 'desc';
+let expandedId = null;
 
-    // Auto-login if session exists
-    if (token) { showDashboard(); }
+const STATUSES = ['onboarding', 'deposit_paid', 'in_production', 'delivered', 'completed', 'cancelled'];
+const STATUS_LABELS = {
+    onboarding: 'Onboarding', deposit_paid: 'Deposit Paid', in_production: 'In Production',
+    delivered: 'Delivered', completed: 'Completed', cancelled: 'Cancelled'
+};
 
-    document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+// ── Auth ───────────────────────────────────────
+function getPassword() { return sessionStorage.getItem('dash_pw') || ''; }
 
-    function doLogin() {
-        const pw = document.getElementById('passwordInput').value;
-        if (!pw) return;
-        token = pw;
-        sessionStorage.setItem('dash_token', token);
-        showDashboard();
-    }
+function attemptLogin() {
+    const pw = document.getElementById('passwordInput').value.trim();
+    if (!pw) return;
+    document.getElementById('loginBtn').textContent = 'Checking...';
+    document.getElementById('loginError').style.display = 'none';
 
-    function logout() {
-        token = '';
-        sessionStorage.removeItem('dash_token');
-        document.getElementById('dashboard').classList.remove('active');
-        document.getElementById('loginScreen').style.display = 'flex';
-        document.getElementById('passwordInput').value = '';
-    }
-
-    async function showDashboard() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboard').classList.add('active');
-        await fetchClients();
-    }
-
-    async function fetchClients() {
-        document.getElementById('loadingState').style.display = 'block';
-        document.getElementById('clientsTable').style.display = 'none';
-        document.getElementById('emptyState').style.display = 'none';
-
-        try {
-            const res = await fetch('/api/clients', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.status === 401) {
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('dashboard').classList.remove('active');
-                document.getElementById('loginError').style.display = 'block';
-                sessionStorage.removeItem('dash_token');
-                token = '';
-                return;
-            }
-            clients = await res.json();
-            renderAll();
-        } catch (err) {
-            document.getElementById('loadingState').textContent = 'Failed to load — check your connection.';
-        }
-    }
-
-    function refreshData() { fetchClients(); }
-
-    function renderAll() {
-        renderStats();
-        renderTable();
-    }
-
-    function renderStats() {
-        const total = clients.length;
-        const depositsPaid = clients.filter(c => c.deposit_paid);
-        const depositsTotal = depositsPaid.reduce((s, c) => s + parseFloat(c.deposit), 0);
-        const finalPaid = clients.filter(c => c.final_paid);
-        const finalTotal = finalPaid.reduce((s, c) => s + (parseFloat(c.total) - parseFloat(c.deposit)), 0);
-        const totalRevenue = depositsTotal + finalTotal;
-        const totalPossible = clients.reduce((s, c) => s + parseFloat(c.total), 0);
-        const outstanding = totalPossible - totalRevenue;
-        const totalSongs = clients.filter(c => c.status === 'completed' || c.status === 'delivered' || c.status === 'in_production').reduce((s, c) => s + c.num_songs, 0);
-
-        document.getElementById('statClients').textContent = total;
-        document.getElementById('statRevenue').textContent = '$' + totalRevenue.toLocaleString();
-        document.getElementById('statRevenueNote').textContent = `of $${totalPossible.toLocaleString()} booked`;
-        document.getElementById('statDeposits').textContent = '$' + depositsTotal.toLocaleString();
-        document.getElementById('statOutstanding').textContent = '$' + outstanding.toLocaleString();
-        document.getElementById('statOutstandingNote').textContent = outstanding > 0 ? 'unpaid balances' : 'all caught up';
-        document.getElementById('statSongs').textContent = totalSongs;
-    }
-
-    function getFiltered() {
-        let filtered = [...clients];
-        if (currentFilter !== 'all') {
-            filtered = filtered.filter(c => c.status === currentFilter);
-        }
-        if (searchQuery) {
-            const q = searchQuery.toLowerCase();
-            filtered = filtered.filter(c =>
-                c.client_name.toLowerCase().includes(q) ||
-                c.client_email.toLowerCase().includes(q) ||
-                c.project_name.toLowerCase().includes(q)
-            );
-        }
-        // Sort
-        filtered.sort((a, b) => {
-            let va = a[sortField], vb = b[sortField];
-            if (sortField === 'total' || sortField === 'deposit' || sortField === 'num_songs') {
-                va = parseFloat(va); vb = parseFloat(vb);
-            }
-            if (va < vb) return sortDir === 'asc' ? -1 : 1;
-            if (va > vb) return sortDir === 'asc' ? 1 : -1;
-            return 0;
+    fetch('/api/clients', { headers: { 'Authorization': 'Bearer ' + pw } })
+        .then(r => {
+            if (!r.ok) throw new Error('bad');
+            return r.json();
+        })
+        .then(data => {
+            sessionStorage.setItem('dash_pw', pw);
+            allClients = data;
+            showDashboard();
+        })
+        .catch(() => {
+            document.getElementById('loginError').style.display = 'block';
+            document.getElementById('loginBtn').textContent = 'Access Dashboard';
         });
-        return filtered;
+}
+
+function logout() {
+    sessionStorage.removeItem('dash_pw');
+    location.reload();
+}
+
+function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('loadingSpinner').style.display = 'none';
+    document.getElementById('clientTable').style.display = '';
+    populateYearOptions();
+    renderTable();
+}
+
+// On load, check session
+(function init() {
+    const pw = getPassword();
+    if (pw) {
+        fetch('/api/clients', { headers: { 'Authorization': 'Bearer ' + pw } })
+            .then(r => { if (!r.ok) throw new Error('bad'); return r.json(); })
+            .then(data => { allClients = data; showDashboard(); })
+            .catch(() => { sessionStorage.removeItem('dash_pw'); });
     }
+    document.getElementById('passwordInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') attemptLogin();
+    });
+})();
 
-    function renderTable() {
-        const filtered = getFiltered();
-        const loading = document.getElementById('loadingState');
-        const table = document.getElementById('clientsTable');
-        const empty = document.getElementById('emptyState');
-
-        loading.style.display = 'none';
-
-        if (filtered.length === 0) {
-            table.style.display = 'none';
-            empty.style.display = 'block';
-            return;
+// ── Year options ───────────────────────────────
+function populateYearOptions() {
+    const years = new Set();
+    allClients.forEach(c => {
+        if (c.created_at) years.add(new Date(c.created_at).getFullYear());
+    });
+    const select = document.getElementById('periodFilter');
+    // Keep existing static options, add dynamic years we haven't added
+    const existingValues = new Set([...select.options].map(o => o.value));
+    [...years].sort((a, b) => b - a).forEach(y => {
+        if (!existingValues.has(String(y))) {
+            const opt = document.createElement('option');
+            opt.value = y; opt.textContent = y;
+            select.appendChild(opt);
         }
+    });
+}
 
-        table.style.display = 'table';
-        empty.style.display = 'none';
+// ── Filtering ──────────────────────────────────
+function getFilteredClients() {
+    const search = document.getElementById('searchBox').value.toLowerCase().trim();
+    const period = document.getElementById('periodFilter').value;
+    const month = document.getElementById('monthFilter').value;
 
-        const tbody = document.getElementById('clientsBody');
-        tbody.innerHTML = filtered.map(c => {
-            const date = new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const statusLabel = c.status.replace(/_/g, ' ');
-            return `<tr onclick="openDetail('${c.id}')">
-                <td>${date}</td>
-                <td class="name">${esc(c.client_name)}</td>
-                <td>${esc(c.project_name)}</td>
-                <td>${c.num_songs}</td>
-                <td>$${parseFloat(c.total).toLocaleString()}</td>
-                <td>$${parseFloat(c.deposit).toLocaleString()}</td>
-                <td class="${c.deposit_paid ? 'paid-yes' : 'paid-no'}">${c.deposit_paid ? 'Yes' : 'No'}</td>
-                <td class="${c.final_paid ? 'paid-yes' : 'paid-no'}">${c.final_paid ? 'Yes' : 'No'}</td>
-                <td><span class="status-badge ${c.status}">${statusLabel}</span></td>
-                <td>${c.signed ? '<span style="color:#4ade80;">Yes</span>' : '<span style="color:#555;">No</span>'}</td>
-            </tr>`;
-        }).join('');
-    }
-
-    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-    function setFilter(f, btn) {
-        currentFilter = f;
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderTable();
-    }
-
-    function onSearch(q) {
-        searchQuery = q;
-        renderTable();
-    }
-
-    function sortBy(field) {
-        if (sortField === field) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
-        else { sortField = field; sortDir = 'desc'; }
-        renderTable();
-    }
-
-    // Detail panel
-    function openDetail(id) {
-        const c = clients.find(x => x.id === id);
-        if (!c) return;
-        const date = new Date(c.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        const remaining = parseFloat(c.total) - parseFloat(c.deposit);
-        const statusLabel = c.status.replace(/_/g, ' ');
-
-        document.getElementById('detailPanel').innerHTML = `
-            <button class="close-btn" onclick="document.getElementById('detailOverlay').classList.remove('active')">&times;</button>
-            <h2>${esc(c.client_name)}</h2>
-            <div class="detail-email"><a href="mailto:${esc(c.client_email)}" style="color:#a29bfe;text-decoration:none;">${esc(c.client_email)}</a></div>
-            <div class="detail-row"><span class="dl">Submitted</span><span class="dv">${date}</span></div>
-            <div class="detail-row"><span class="dl">Project</span><span class="dv">${esc(c.project_name)}</span></div>
-            <div class="detail-row"><span class="dl">Songs</span><span class="dv">${c.num_songs}</span></div>
-            <div class="detail-row"><span class="dl">Rate</span><span class="dv">$${parseFloat(c.rate_per_song).toLocaleString()}/song</span></div>
-            <div class="detail-row"><span class="dl">Start Date</span><span class="dv">${c.start_date || '—'}</span></div>
-            <div class="detail-row"><span class="dl">Notes</span><span class="dv">${esc(c.notes || '—')}</span></div>
-            <div class="detail-row"><span class="dl">Invoice #</span><span class="dv">${c.invoice_number || '—'}</span></div>
-            <div class="detail-row"><span class="dl">Signed</span><span class="dv">${c.signed ? '<span style="color:#4ade80;">Yes</span>' : '<span style="color:#f87171;">No</span>'}</span></div>
-            <div class="detail-row gold"><span class="dl">Total</span><span class="dv">$${parseFloat(c.total).toLocaleString()}</span></div>
-            <div class="detail-row gold"><span class="dl">Security Deposit</span><span class="dv">$${parseFloat(c.deposit).toLocaleString()}</span></div>
-            <div class="detail-row"><span class="dl">Remaining Balance</span><span class="dv">$${remaining.toLocaleString()}</span></div>
-            <div class="detail-actions">
-                <label style="color:#666;font-size:11px;display:flex;align-items:center;gap:6px;">
-                    Status:
-                    <select id="detailStatus">
-                        <option value="onboarding" ${c.status==='onboarding'?'selected':''}>Onboarding</option>
-                        <option value="deposit_paid" ${c.status==='deposit_paid'?'selected':''}>Deposit Paid</option>
-                        <option value="in_production" ${c.status==='in_production'?'selected':''}>In Production</option>
-                        <option value="delivered" ${c.status==='delivered'?'selected':''}>Delivered</option>
-                        <option value="completed" ${c.status==='completed'?'selected':''}>Completed</option>
-                        <option value="cancelled" ${c.status==='cancelled'?'selected':''}>Cancelled</option>
-                    </select>
-                </label>
-                <label style="color:#666;font-size:11px;display:flex;align-items:center;gap:6px;">
-                    <input type="checkbox" id="detailDepPaid" ${c.deposit_paid?'checked':''}>
-                    Deposit Paid
-                </label>
-                <label style="color:#666;font-size:11px;display:flex;align-items:center;gap:6px;">
-                    <input type="checkbox" id="detailFinalPaid" ${c.final_paid?'checked':''}>
-                    Final Paid
-                </label>
-                <button class="save-btn" onclick="saveDetail('${c.id}')">Save Changes</button>
-            </div>
-        `;
-        document.getElementById('detailOverlay').classList.add('active');
-    }
-
-    function closeDetail(e) {
-        if (e.target === document.getElementById('detailOverlay')) {
-            document.getElementById('detailOverlay').classList.remove('active');
+    return allClients.filter(c => {
+        // Search
+        if (search) {
+            const hay = [c.client_name, c.client_email, c.project_name].map(s => (s || '').toLowerCase()).join(' ');
+            if (!hay.includes(search)) return false;
         }
-    }
-
-    async function saveDetail(id) {
-        const status = document.getElementById('detailStatus').value;
-        const deposit_paid = document.getElementById('detailDepPaid').checked;
-        const final_paid = document.getElementById('detailFinalPaid').checked;
-
-        try {
-            const res = await fetch('/api/clients', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ id, status, deposit_paid, final_paid }),
-            });
-            if (res.ok) {
-                // Update local data
-                const idx = clients.findIndex(c => c.id === id);
-                if (idx !== -1) {
-                    clients[idx].status = status;
-                    clients[idx].deposit_paid = deposit_paid;
-                    clients[idx].final_paid = final_paid;
-                }
-                document.getElementById('detailOverlay').classList.remove('active');
-                renderAll();
+        // Period
+        if (period !== 'all' && c.created_at) {
+            const d = new Date(c.created_at);
+            const y = d.getFullYear();
+            if (period === 'ytd') {
+                const now = new Date();
+                if (y !== now.getFullYear() || d > now) return false;
+            } else {
+                if (y !== parseInt(period)) return false;
             }
-        } catch (err) {
-            console.error('Save error:', err);
         }
-    }
-
-    // CSV Export
-    function exportCSV() {
-        const filtered = getFiltered();
-        if (filtered.length === 0) return;
-
-        const headers = ['Date', 'Client Name', 'Email', 'Project', 'Songs', 'Rate/Song', 'Total', 'Deposit', 'Deposit Paid', 'Final Paid', 'Status', 'Signed', 'Start Date', 'Notes', 'Invoice #'];
-        const rows = filtered.map(c => [
-            new Date(c.created_at).toLocaleDateString('en-US'),
-            c.client_name,
-            c.client_email,
-            c.project_name,
-            c.num_songs,
-            c.rate_per_song,
-            c.total,
-            c.deposit,
-            c.deposit_paid ? 'Yes' : 'No',
-            c.final_paid ? 'Yes' : 'No',
-            c.status,
-            c.signed ? 'Yes' : 'No',
-            c.start_date || '',
-            c.notes || '',
-            c.invoice_number || '',
-        ]);
-
-        let csv = headers.join(',') + '\n';
-        for (const row of rows) {
-            csv += row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\n';
+        // Month
+        if (month !== 'all' && c.created_at) {
+            const m = String(new Date(c.created_at).getMonth() + 1).padStart(2, '0');
+            if (m !== month) return false;
         }
+        return true;
+    });
+}
 
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `TravisAtreo_Clients_${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
+// ── Sorting ────────────────────────────────────
+function sortBy(field) {
+    if (sortField === field) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+    else { sortField = field; sortDir = 'desc'; }
+    // Update header UI
+    document.querySelectorAll('.client-table th').forEach(th => {
+        th.classList.toggle('sorted', th.dataset.sort === field);
+        const arrow = th.querySelector('.sort-arrow');
+        if (arrow && th.dataset.sort === field) {
+            arrow.innerHTML = sortDir === 'asc' ? '&#9650;' : '&#9660;';
+        }
+    });
+    renderTable();
+}
+
+function sortClients(clients) {
+    return [...clients].sort((a, b) => {
+        let va = a[sortField], vb = b[sortField];
+        if (va == null) va = '';
+        if (vb == null) vb = '';
+        if (typeof va === 'number' && typeof vb === 'number') {
+            return sortDir === 'asc' ? va - vb : vb - va;
+        }
+        va = String(va).toLowerCase(); vb = String(vb).toLowerCase();
+        if (va < vb) return sortDir === 'asc' ? -1 : 1;
+        if (va > vb) return sortDir === 'asc' ? 1 : -1;
+        return 0;
+    });
+}
+
+// ── Render ─────────────────────────────────────
+function renderTable() {
+    const filtered = sortClients(getFilteredClients());
+    updateStats(filtered);
+
+    const tbody = document.getElementById('clientBody');
+    const empty = document.getElementById('emptyState');
+    const table = document.getElementById('clientTable');
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        table.style.display = 'none';
+        empty.style.display = '';
+        return;
     }
+    table.style.display = '';
+    empty.style.display = 'none';
+
+    tbody.innerHTML = filtered.map(c => {
+        const date = c.created_at ? new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+        const status = c.status || 'onboarding';
+        const isExpanded = expandedId === c.id;
+
+        return `
+            <tr onclick="toggleExpand('${c.id}')" class="client-row">
+                <td>${date}</td>
+                <td><span class="client-name">${esc(c.client_name || '—')}</span></td>
+                <td><span class="client-email">${esc(c.client_email || '—')}</span></td>
+                <td><span class="client-project">${esc(c.project_name || '—')}</span></td>
+                <td>${c.num_songs || '—'}</td>
+                <td>${c.rate_per_song ? '$' + fmt(c.rate_per_song) : '—'}</td>
+                <td><strong>$${fmt(c.total || 0)}</strong></td>
+                <td>$${fmt(c.deposit || 0)}</td>
+                <td><span class="badge badge-${status}" onclick="event.stopPropagation(); cycleStatus('${c.id}', '${status}')">${STATUS_LABELS[status] || status}</span></td>
+                <td onclick="event.stopPropagation();">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <div style="text-align:center;">
+                            <div class="check-toggle ${c.deposit_paid ? 'checked' : ''}" onclick="toggleField('${c.id}', 'deposit_paid', ${!c.deposit_paid})" title="Deposit paid">
+                                ${c.deposit_paid ? '&#10003;' : ''}
+                            </div>
+                            <div style="font-size:9px;color:#666;margin-top:2px;">Dep</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div class="check-toggle ${c.final_paid ? 'checked' : ''}" onclick="toggleField('${c.id}', 'final_paid', ${!c.final_paid})" title="Final paid">
+                                ${c.final_paid ? '&#10003;' : ''}
+                            </div>
+                            <div style="font-size:9px;color:#666;margin-top:2px;">Final</div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr class="expand-row ${isExpanded ? 'open' : ''}" id="expand-${c.id}">
+                <td colspan="10">
+                    <div class="expand-content">
+                        <div class="expand-field">
+                            <div class="label">Invoice #</div>
+                            <div class="value">${esc(c.invoice_number || 'N/A')}</div>
+                        </div>
+                        <div class="expand-field">
+                            <div class="label">Start Date</div>
+                            <div class="value">${c.start_date ? new Date(c.start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Not set'}</div>
+                        </div>
+                        <div class="expand-field">
+                            <div class="label">Signed</div>
+                            <div class="value">${c.signed ? 'Yes' + (c.signed_at ? ' — ' + new Date(c.signed_at).toLocaleDateString() : '') : 'No'}</div>
+                        </div>
+                        <div class="expand-field" style="flex:1; min-width:200px;">
+                            <div class="label">Notes</div>
+                            <textarea class="notes-input" id="notes-${c.id}" onclick="event.stopPropagation()" onblur="saveNotes('${c.id}')">${esc(c.notes || '')}</textarea>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function toggleExpand(id) {
+    expandedId = expandedId === id ? null : id;
+    renderTable();
+}
+
+// ── Stats ──────────────────────────────────────
+function updateStats(filtered) {
+    let revenue = 0, deposits = 0, activeCount = 0;
+    filtered.forEach(c => {
+        const total = c.total || 0;
+        const dep = c.deposit || 0;
+        // Revenue: completed totals + paid deposits
+        if (c.status === 'completed' || c.final_paid) {
+            revenue += total;
+        } else if (c.deposit_paid) {
+            revenue += dep;
+        }
+        if (c.deposit_paid) deposits += dep;
+        if (['onboarding', 'deposit_paid', 'in_production'].includes(c.status || 'onboarding')) {
+            activeCount++;
+        }
+    });
+    const outstanding = filtered.reduce((sum, c) => {
+        let owed = (c.total || 0);
+        if (c.deposit_paid) owed -= (c.deposit || 0);
+        if (c.final_paid || c.status === 'completed') owed = 0;
+        return sum + owed;
+    }, 0);
+
+    document.getElementById('statRevenue').textContent = '$' + fmtK(revenue);
+    document.getElementById('statDeposits').textContent = '$' + fmtK(deposits);
+    document.getElementById('statOutstanding').textContent = '$' + fmtK(outstanding);
+    document.getElementById('statActive').textContent = activeCount;
+    document.getElementById('statClients').textContent = filtered.length;
+}
+
+// ── API Actions ────────────────────────────────
+async function patchClient(id, updates) {
+    try {
+        const res = await fetch('/api/clients', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getPassword()
+            },
+            body: JSON.stringify({ id, ...updates })
+        });
+        if (!res.ok) throw new Error('Failed');
+        const updated = await res.json();
+        // Update local state
+        const idx = allClients.findIndex(c => c.id === id);
+        if (idx >= 0 && updated) Object.assign(allClients[idx], updated);
+        renderTable();
+        showToast('Updated successfully');
+    } catch (e) {
+        showToast('Update failed', true);
+    }
+}
+
+function cycleStatus(id, current) {
+    const idx = STATUSES.indexOf(current);
+    const next = STATUSES[(idx + 1) % STATUSES.length];
+    patchClient(id, { status: next });
+}
+
+function toggleField(id, field, value) {
+    patchClient(id, { [field]: value });
+}
+
+function saveNotes(id) {
+    const el = document.getElementById('notes-' + id);
+    if (!el) return;
+    const client = allClients.find(c => c.id === id);
+    if (client && el.value !== (client.notes || '')) {
+        patchClient(id, { notes: el.value });
+    }
+}
+
+// ── CSV Export ─────────────────────────────────
+function exportCSV() {
+    const filtered = sortClients(getFilteredClients());
+    if (filtered.length === 0) { showToast('No data to export', true); return; }
+
+    const headers = ['Date', 'Client Name', 'Email', 'Project', 'Songs', 'Rate per Song', 'Total', 'Deposit', 'Status', 'Deposit Paid', 'Final Paid', 'Invoice #', 'Start Date', 'Signed', 'Notes'];
+    const rows = filtered.map(c => [
+        c.created_at ? new Date(c.created_at).toLocaleDateString() : '',
+        c.client_name || '', c.client_email || '', c.project_name || '',
+        c.num_songs || '', c.rate_per_song || '', c.total || '', c.deposit || '',
+        c.status || 'onboarding', c.deposit_paid ? 'Yes' : 'No', c.final_paid ? 'Yes' : 'No',
+        c.invoice_number || '', c.start_date || '', c.signed ? 'Yes' : 'No',
+        (c.notes || '').replace(/"/g, '""')
+    ]);
+
+    let csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `travis-atreo-clients-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV exported');
+}
+
+// ── Helpers ────────────────────────────────────
+function esc(str) {
+    const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+}
+function fmt(n) {
+    return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function fmtK(n) {
+    if (n >= 10000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return fmt(n);
+}
+
+function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isError ? ' error' : '');
+    setTimeout(() => { t.className = 'toast'; }, 2500);
+}
 </script>
 </body>
 </html>
