@@ -64,13 +64,14 @@
         .row { display: flex; gap: 12px; }
         .row .field { flex: 1; }
 
-        .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+        .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
         .radio-group label {
-            display: flex; align-items: center; gap: 6px;
+            display: flex; align-items: center; gap: 8px;
             background: #0f0f24; border: 1px solid #2a2a48; border-radius: 8px;
-            padding: 8px 14px; cursor: pointer; font-size: 12px; color: #ccc;
+            padding: 10px 14px; cursor: pointer; font-size: 13px; color: #ccc;
             text-transform: none; letter-spacing: 0; font-weight: 400;
-            transition: all 0.2s;
+            transition: all 0.2s; white-space: nowrap;
+            min-width: 0;
         }
         .radio-group label:hover { border-color: #c8a851; }
         .radio-group input[type="radio"] { accent-color: #c8a851; }
@@ -129,10 +130,10 @@
             <div class="field">
                 <label>Federal Tax Classification</label>
                 <div class="radio-group">
-                    <label><input type="radio" name="taxClass" value="individual" checked><span>Individual / Sole Proprietor</span></label>
+                    <label><input type="radio" name="taxClass" value="individual" checked><span>Sole Proprietor</span></label>
                     <label><input type="radio" name="taxClass" value="llc_s"><span>LLC (S-Corp)</span></label>
                     <label><input type="radio" name="taxClass" value="llc_c"><span>LLC (C-Corp)</span></label>
-                    <label><input type="radio" name="taxClass" value="llc_p"><span>LLC (Partnership)</span></label>
+                    <label><input type="radio" name="taxClass" value="llc_p"><span>LLC (Partner)</span></label>
                     <label><input type="radio" name="taxClass" value="ccorp"><span>C Corporation</span></label>
                     <label><input type="radio" name="taxClass" value="scorp"><span>S Corporation</span></label>
                 </div>
